@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,14 +16,14 @@ import java.util.Collection;
 
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
-import ru.yandex.practicum.filmorate.validator.Create;
-import ru.yandex.practicum.filmorate.validator.Update;
+import ru.yandex.practicum.filmorate.validator.Group;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    private final UserRepository repository = new UserRepository();
+    private final UserRepository repository;
 
     @GetMapping
     public Collection<User> showAll() {
@@ -32,13 +33,13 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@Validated(Create.class) @RequestBody User user) {
+    public User create(@Validated(Group.Create.class) @RequestBody User user) {
         log.debug("Запрос на создание пользователя {} прошёл валидацию.", user.getLogin());
         return repository.add(user);
     }
 
     @PutMapping
-    public User update(@Validated(Update.class) @RequestBody User user) {
+    public User update(@Validated(Group.Update.class) @RequestBody User user) {
         log.debug("Запрос на обновление пользователя {} (id={}) прошёл валидацию.", user.getLogin(), user.getId());
         return repository.update(user);
     }

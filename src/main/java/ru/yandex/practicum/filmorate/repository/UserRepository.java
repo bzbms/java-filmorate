@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@Repository
 public class UserRepository {
     private final Map<Long, User> users = new HashMap<>();
 
@@ -45,8 +47,6 @@ public class UserRepository {
     }
 
     private long getNextId() {
-        // Не уверен надо ли хранить текущий id, может надёжнее было бы каждый раз смотреть какие есть
-        // С другой стороны грузная операция с O(n)... зато при удалении id самооткатывается... пока пусть так, поменять недолго)
         long uniqueId = users.keySet()
                 .stream()
                 .mapToLong(id -> id)

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,14 +16,14 @@ import java.util.Collection;
 
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
-import ru.yandex.practicum.filmorate.validator.Create;
-import ru.yandex.practicum.filmorate.validator.Update;
+import ru.yandex.practicum.filmorate.validator.Group;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
-    private final FilmRepository repository = new FilmRepository();
+    private final FilmRepository repository;
 
     @GetMapping
     public Collection<Film> showAll() {
@@ -32,13 +33,13 @@ public class FilmController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Film create(@Validated(Create.class) @RequestBody Film film) {
+    public Film create(@Validated(Group.Create.class) @RequestBody Film film) {
         log.debug("Запрос на создание фильма {} прошёл валидацию.", film.getName());
         return repository.add(film);
     }
 
     @PutMapping
-    public Film update(@Validated(Update.class) @RequestBody Film film) {
+    public Film update(@Validated(Group.Update.class) @RequestBody Film film) {
         log.debug("Запрос на обновление фильма {} (id={}) прошёл валидацию.", film.getName(), film.getId());
         return repository.update(film);
     }

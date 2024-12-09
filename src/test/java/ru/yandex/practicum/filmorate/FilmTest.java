@@ -5,11 +5,12 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import ru.yandex.practicum.filmorate.model.Film;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.validator.Create;
+import ru.yandex.practicum.filmorate.validator.Group;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
@@ -30,7 +31,7 @@ public class FilmTest {
     void badName() {
         Film film = new Film(1, "", "description", LocalDate.of(1990, 1, 1), 10);
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Create.class);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
         ConstraintViolation<Film> violation = violations.stream().findFirst().get();
         assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
@@ -40,7 +41,7 @@ public class FilmTest {
     void badReleaseDate() {
         Film film = new Film(1, "name", "description", LocalDate.of(1790, 1, 1), 10);
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Create.class);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
         ConstraintViolation<Film> violation = violations.stream().findFirst().get();
         assertEquals(ReleaseDate.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
@@ -56,7 +57,7 @@ public class FilmTest {
                 "Tantos - понятный интерфейс, квоты для камер. Множество добавлений в приложение. Проблемная детекция движения\n" +
                 "У ON есть qr-код на корпусе. Только одна привязка к приложению. Проблемная детекция движения");
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Create.class);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
         ConstraintViolation<Film> violation = violations.stream().findFirst().get();
         assertEquals(Size.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
@@ -66,7 +67,59 @@ public class FilmTest {
     void badDuration() {
         Film film = new Film(1, "name", "description", LocalDate.of(1990, 1, 1), -10);
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Create.class);
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
+        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
+        ConstraintViolation<Film> violation = violations.stream().findFirst().get();
+        assertEquals(Positive.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+    }
+
+    @Test
+    void nullName() {
+        Film film = new Film();
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.of(1990, 1, 1));
+        film.setDuration(10);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
+        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
+        ConstraintViolation<Film> violation = violations.stream().findFirst().get();
+        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+    }
+
+    @Test
+    void nullDescription() {
+        Film film = new Film();
+        film.setName("name");
+        film.setReleaseDate(LocalDate.of(1990, 1, 1));
+        film.setDuration(10);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
+        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
+        ConstraintViolation<Film> violation = violations.stream().findFirst().get();
+        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+    }
+
+/*    @Test
+    void nullReleaseDate() {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setDuration(10);
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
+        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
+        ConstraintViolation<Film> violation = violations.stream().findFirst().get();
+        assertEquals(NotNull.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
+    }*/
+
+    @Test
+    void nullDuration() {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.of(1990, 1, 1));
+
+        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
         ConstraintViolation<Film> violation = violations.stream().findFirst().get();
         assertEquals(Positive.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
