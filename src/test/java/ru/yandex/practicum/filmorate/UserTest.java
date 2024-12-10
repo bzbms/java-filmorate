@@ -4,7 +4,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Past;
@@ -55,18 +54,6 @@ public class UserTest {
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
         ConstraintViolation<User> violation = violations.stream().findFirst().get();
         assertEquals(Past.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
-    }
-
-    @Test
-    void nullEmail() {
-        User user = new User();
-        user.setLogin("login");
-        user.setBirthday(LocalDate.of(1990, 1, 1));
-
-        Set<ConstraintViolation<User>> violations = validator.validate(user, Group.Create.class);
-        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
-        ConstraintViolation<User> violation = violations.stream().findFirst().get();
-        assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
     @Test

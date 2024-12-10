@@ -28,14 +28,28 @@ public class UserRepository {
 
     public User update(User user) {
         if (users.containsKey(user.getId())) {
-            User existedUser;
-            if (user.getName() == null || user.getName().isBlank()) {
-                user.setName(user.getLogin());
-                log.debug("Имя пользователя с id {} было присвоено от login.", user.getId());
+            User existedUser = users.get(user.getId());
+            if (user.getLogin() != null && !user.getLogin().isBlank()) {
+                existedUser.setLogin(user.getLogin());
+                log.debug("Login пользователя {} был обновлён.", user.getId());
             }
-            existedUser = user;
+            if (user.getEmail() != null) {
+                existedUser.setEmail(user.getEmail());
+                log.debug("Email пользователя {} был обновлён.", user.getId());
+            }
+            if (user.getBirthday() != null) {
+                existedUser.setBirthday(user.getBirthday());
+                log.debug("Дата рождения пользователя {} была обновлена.", user.getId());
+            }
+            if (user.getName() == null || user.getName().isBlank()) {
+                existedUser.setName(existedUser.getLogin());
+                log.debug("Имя пользователя с id {} было присвоено от login.", user.getId());
+            } else if (!existedUser.getName().equals(user.getName())) {
+                existedUser.setName(user.getName());
+                log.debug("Имя пользователя {} было обновлено.", user.getId());
+            }
             users.put(existedUser.getId(), existedUser);
-            log.info("Пользователь {} с id {} обновлён", user.getLogin(), user.getId());
+            log.info("Пользователь {} с id {} обновлён.", user.getLogin(), user.getId());
             return existedUser;
         }
         log.debug("Запрошен пользователь с неизвестным id = {}", user.getId());

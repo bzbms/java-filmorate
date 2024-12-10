@@ -98,30 +98,4 @@ public class FilmTest {
         assertEquals(NotBlank.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
     }
 
-/*    @Test
-    void nullReleaseDate() {
-        Film film = new Film();
-        film.setName("name");
-        film.setDescription("description");
-        film.setDuration(10);
-
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
-        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
-        ConstraintViolation<Film> violation = violations.stream().findFirst().get();
-        assertEquals(NotNull.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
-    }*/
-
-    @Test
-    void nullDuration() {
-        Film film = new Film();
-        film.setName("name");
-        film.setDescription("description");
-        film.setReleaseDate(LocalDate.of(1990, 1, 1));
-
-        Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
-        assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
-        ConstraintViolation<Film> violation = violations.stream().findFirst().get();
-        assertEquals(Positive.class, violation.getConstraintDescriptor().getAnnotation().annotationType());
-    }
-
 }

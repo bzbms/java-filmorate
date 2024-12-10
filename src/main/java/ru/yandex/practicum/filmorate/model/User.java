@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
@@ -22,12 +20,9 @@ public class User {
 
     private String name;
 
-    @NotEmpty(message = "Не указана почта для обновления", groups = {Group.Update.class})
-    @NotBlank(message = "Не указана почта", groups = {Group.Create.class})
     @Email(message = "Почта указана некорректно", groups = {Group.Create.class, Group.Update.class})
     private String email;
 
-    @NotEmpty(message = "Не указан логин для обновления", groups = {Group.Update.class})
     @NotNull(message = "Не указан логин", groups = {Group.Create.class})
     @Pattern(regexp = "^[A-Za-z0-9]+$",
             message = "login может содержать только цифры и символы латиницы",
