@@ -16,6 +16,7 @@ import java.util.Collection;
 
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validator.Group;
 
 @Slf4j
@@ -24,6 +25,7 @@ import ru.yandex.practicum.filmorate.validator.Group;
 @RequiredArgsConstructor
 public class UserController {
     private final UserRepository repository;
+    private final UserService service;
 
     @GetMapping
     public Collection<User> showAll() {
