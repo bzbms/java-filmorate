@@ -1,18 +1,23 @@
 package ru.yandex.practicum.filmorate.repository;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Repository
+@Getter
+@Setter
 public class InMemoryFilmRepository implements FilmRepository {
     private final Map<Long, Film> films = new HashMap<>();
+
+    // Храним по id фильма множество id юзеров, размер множества является рейтингом популярности
+    private final HashMap<Long, Set<Long>> likes = new HashMap<>();
 
     public Film add(Film film) {
         film.setId(getNextId());
@@ -53,14 +58,8 @@ public class InMemoryFilmRepository implements FilmRepository {
         return films.values();
     }
 
-    public Film get(Long id) {
-        if (films.containsKey(id)) {
-            log.trace("Запрошен фильм с id = {}", id);
-            return films.get(id);
-        } else {
-            log.debug("Запрошен фильм с неизвестным id = {}", id);
-            throw new NotFoundException("Фильм с id = " + id + " не найден.");
-        }
+    public Optional<Film> getFilm(Long id) {
+        return Optional.of(films.get(id));
     }
 
     private long getNextId() {
@@ -70,5 +69,9 @@ public class InMemoryFilmRepository implements FilmRepository {
                 .max()
                 .orElse(0);
         return ++uniqueId;
+    }
+
+    public HashMap<Long, Set<Long>> getLikes() {
+        return likes;
     }
 }

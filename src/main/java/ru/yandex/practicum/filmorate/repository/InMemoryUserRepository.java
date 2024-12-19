@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -58,6 +60,10 @@ public class InMemoryUserRepository implements UserRepository {
 
     public Collection<User> getAll() {
         return users.values();
+    }
+
+    public Optional<User> getUser(Long id) {
+        return Optional.of(users.get(id));
     }
 
     private long getNextId() {

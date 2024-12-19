@@ -4,16 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -45,4 +41,41 @@ public class UserController {
         log.debug("Запрос на обновление пользователя {} (id={}) прошёл валидацию.", user.getLogin(), user.getId());
         return repository.update(user);
     }
+
+    @GetMapping("/{userId}")
+    public User findUser(@PathVariable("userId") Long userId) {
+        log.debug("Запрошен фильм c id={}", userId);
+        return repository.getUser(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
+    }
+
+    @PutMapping("/{userId}/friends/{friendId}")
+    public void addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        log.debug("От пользователя с id={} совершён запрос на добавление друга id={} ", userId, friendId);
+        service.addFriend(userId, userId);
+    }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        log.trace("От пользователя с id={} совершён запрос на удаление друга id={} ", userId, friendId);
+        userRepository.getUser(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", userId)));
+        userRepository.getUser(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
+        service.deleteFriend(userId, userId);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public Collection<User> showFriendsByUser(@PathVariable Long userId) {
+        log.trace("Запрошен список друзей пользователя с id={}", userId);
+        return service.showFriendsByUser(userId);
+    }
+
+//  список друзей, общих с другим пользователем.
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    public Collection<User> showFriendsByUser(@PathVariable Long userId, @PathVariable Long otherId) {
+        log.trace("Запрошен список друзей пользователя с id={}", userId);
+        return service.showFriendsByUser(userId);
+    }
+
 }

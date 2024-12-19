@@ -1,45 +1,37 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
 
-
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    private final FilmRepository repository;
+    private final FilmRepository filmRepository;
+    private final UserRepository userRepository;
 
-    public void addLike(Long id) {
-        Film film = repository.get(id);
-        if (film.getLikes().add(id)) {
-            log.info("Лайк добавлен фильму {}", film.getName());
-            repository.update(film);
-        } else {
-            log.info("У фильма {} лайк уже был поставлен", film.getName());
-        }
+    public void addLike(Long filmId, Long userId) {
+        filmRepository.getFilm(filmId)
+                .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
+        userRepository.getUser(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
+        filmRepository.getLikes().get(filmId).add(userId);
     }
 
-    public void deleteLike(Long id) {
-        Film film = repository.get(id);
-        if (film.getLikes().remove(id)) {
-            log.info("Лайк удалён у фильма {}", film.getName());
-            repository.update(film);
-        } else {
-            log.debug("У фильма {} не было лайка от пользователя с id={}", film.getName(), id);
-        }
+    public void deleteLike(Long filmId, Long userId) {
+        filmRepository.getLikes().get(filmId).remove(userId);
     }
 
     /*
-        вывод 10 наиболее популярных фильмов по количеству лайков.
+        вывод 10 наиболее популярных фильмов по количеству лайков. должно быть логикой хранилища(в будущей бд)
        */
-    public void getMostPopularFilms() {
-        Collection<Film> films = repository.getAll();
+    public void showPopularFilms() {
+        Collection<Film> films = filmRepository.getAll();
         int size = 0;
         for (Film film : films) {
             if (size < film.getLikes().size()) {

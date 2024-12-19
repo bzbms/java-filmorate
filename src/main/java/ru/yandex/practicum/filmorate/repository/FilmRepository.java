@@ -3,6 +3,9 @@ package ru.yandex.practicum.filmorate.repository;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.Set;
 
 public interface FilmRepository {
 
@@ -12,6 +15,8 @@ public interface FilmRepository {
 
     Collection<Film> getAll();
 
-    Film get(Long id);
+    Optional<Film> getFilm(Long id);
+
+    HashMap<Long, Set<Long>> getLikes();
 
 }
