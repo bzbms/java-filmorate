@@ -8,6 +8,8 @@ import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,23 +17,54 @@ public class FilmService {
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
 
-    public void addLike(Long filmId, Long userId) {
-        filmRepository.getFilm(filmId)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
-        userRepository.getUser(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-        filmRepository.getLikes().get(filmId).add(userId);
+    public Collection<Film> getAll() {
+        return filmRepository.getAll();
     }
 
-    public void deleteLike(Long filmId, Long userId) {
-        filmRepository.getLikes().get(filmId).remove(userId);
+    public Optional<Film> get(Long filmId) {
+        return Optional.ofNullable(filmRepository.get(filmId));
+    }
+
+    public Film add(Film film) {
+        film.setId(getNextId());
+        return filmRepository.add(film);
+    }
+
+    public Optional<Film> update(Film film) {
+        if (filmRepository.getFilms().containsKey(film.getId())) {
+            Film existedFilm = filmRepository.getFilms().get(film.getId());
+            if (film.getName() != null && !film.getName().isBlank()) {
+                existedFilm.setName(film.getName());
+            }
+            if (film.getDescription() != null && !film.getDescription().isBlank()) {
+                existedFilm.setDescription(film.getDescription());
+            }
+            if (film.getReleaseDate() != null) {
+                existedFilm.setReleaseDate(film.getReleaseDate());
+            }
+            if (existedFilm.getDuration() != film.getDuration()) {
+                existedFilm.setDuration(film.getDuration());
+            }
+            return Optional.ofNullable(filmRepository.update(existedFilm.getId(), existedFilm));
+        }
+        return Optional.empty();
+    }
+
+    public boolean addLike(Long filmId, Long userId) {
+        return filmRepository.getLikes().get(filmId).add(userId);
+    }
+
+    public boolean deleteLike(Long filmId, Long userId) {
+        return filmRepository.getLikes().get(filmId).remove(userId);
     }
 
     /*
         вывод 10 наиболее популярных фильмов по количеству лайков. должно быть логикой хранилища(в будущей бд)
        */
-    public void showPopularFilms() {
-        Collection<Film> films = filmRepository.getAll();
+    public Collection<Film> showPopularFilms(Integer count) {
+        filmRepository.getSortedFilms().
+        return filmRepository.getSortedFilms();
+/*        Collection<Film> films = filmRepository.getAll();
         int size = 0;
         for (Film film : films) {
             if (size < film.getLikes().size()) {
@@ -39,7 +72,17 @@ public class FilmService {
             }
         }
 
-        films.stream().sorted().peek(film -> film.getLikes().size()).takeWhile()
-        log.info("Лайк добавлен фильму {}", film.getName());
+        films.stream().sorted().peek(film -> film.getLikes().size()).takeWhile()*/
     }
+
+
+    private long getNextId() {
+        long uniqueId = filmRepository.getFilms().keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
+        return ++uniqueId;
+    }
+
 }

@@ -2,21 +2,21 @@ package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public interface FilmRepository {
 
     Film add(Film film);
 
-    Film update(Film film);
+    Film update(Long id, Film film);
 
     Collection<Film> getAll();
 
-    Optional<Film> getFilm(Long id);
+    Film get(Long id);
 
-    HashMap<Long, Set<Long>> getLikes();
+    Map<Long, Film> getFilms();
 
+    Map<Long, Set<Long>> getLikes();
+
+    Set<Film> getSortedFilms();
 }

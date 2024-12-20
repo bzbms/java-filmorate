@@ -33,4 +33,6 @@ public class Film {
     @Positive(message = "Продолжительность должна быть положительной", groups = {Group.Create.class, Group.Update.class})
     private int duration;
 
+    private int rating;
+
 }

@@ -20,32 +20,32 @@ import ru.yandex.practicum.filmorate.validator.Group;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserRepository repository;
     private final UserService service;
 
     @GetMapping
     public Collection<User> showAll() {
         log.debug("Запрошен список всех пользователей.");
-        return repository.getAll();
+        return service.getAll();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User create(@Validated(Group.Create.class) @RequestBody User user) {
         log.debug("Запрос на создание пользователя {} прошёл валидацию.", user.getLogin());
-        return repository.add(user);
+        return service.add(user);
     }
 
     @PutMapping
     public User update(@Validated(Group.Update.class) @RequestBody User user) {
         log.debug("Запрос на обновление пользователя {} (id={}) прошёл валидацию.", user.getLogin(), user.getId());
-        return repository.update(user);
+        return service.update(user)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", user.getId())));
     }
 
     @GetMapping("/{userId}")
     public User findUser(@PathVariable("userId") Long userId) {
         log.debug("Запрошен фильм c id={}", userId);
-        return repository.getUser(userId)
+        return service.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
     }
 
@@ -58,9 +58,9 @@ public class UserController {
     @DeleteMapping("/{userId}/friends/{friendId}")
     public void deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         log.trace("От пользователя с id={} совершён запрос на удаление друга id={} ", userId, friendId);
-        userRepository.getUser(userId)
+        service.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", userId)));
-        userRepository.getUser(userId)
+        service.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
         service.deleteFriend(userId, userId);
     }
