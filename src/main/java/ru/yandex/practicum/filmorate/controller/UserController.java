@@ -4,14 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Collection;
 
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validator.Group;
 
@@ -71,11 +77,10 @@ public class UserController {
         return service.showFriendsByUser(userId);
     }
 
-//  список друзей, общих с другим пользователем.
     @GetMapping("/{userId}/friends/common/{otherId}")
     public Collection<User> showFriendsByUser(@PathVariable Long userId, @PathVariable Long otherId) {
-        log.trace("Запрошен список друзей пользователя с id={}", userId);
-        return service.showFriendsByUser(userId);
+        log.trace("Запрошен список общих друзей от пользователя с id={} и id={}", userId, otherId);
+        return service.showFriendsCommonWithUser(userId, otherId);
     }
 
 }
