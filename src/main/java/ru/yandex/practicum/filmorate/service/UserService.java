@@ -6,9 +6,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,26 +51,24 @@ public class UserService {
         return Optional.empty();
     }
 
-/*
-    будет отвечать за такие операции с пользователями, как
-    добавление в друзья,
-    удаление из друзей,
-    вывод списка общих друзей.
-
-    Пока пользователям не надо одобрять заявки в друзья — добавляем сразу.
-    То есть если Лена стала другом Саши, то это значит, что Саша теперь друг Лены.*/
-
-    public void addFriend(Long userId, Long userId1) {
-
+    public boolean addFriend(Long userId, Long otherId) {
+        repository.setFriendsAtUser(userId, otherId);
+        return repository.setFriendsAtUser(otherId, userId);
     }
 
-    public void deleteFriend(Long userId, Long userId1) {
+    public boolean deleteFriend(Long userId, Long otherId) {
+        repository.removeFriendsAtUser(userId, otherId);
+        return repository.removeFriendsAtUser(otherId, userId);
     }
 
     public Collection<User> showFriendsByUser(Long userId) {
+        return repository.getFriendsByUser(userId).stream().map(id -> repository.get(id)).collect(Collectors.toList());
     }
 
     public Collection<User> showFriendsCommonWithUser(Long userId, Long otherId) {
+        Set<Long> intersection = new HashSet<>(repository.getFriendsByUser(userId));
+        intersection.retainAll(repository.getFriendsByUser(otherId));
+        return intersection.stream().map(id -> repository.get(id)).collect(Collectors.toList());
     }
 
     private long getNextId() {

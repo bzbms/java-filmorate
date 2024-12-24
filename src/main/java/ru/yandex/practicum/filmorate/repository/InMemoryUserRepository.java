@@ -19,26 +19,6 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
     private final HashMap<Long, Set<Long>> friends = new HashMap<>();
 
-    public Collection<User> getAll() {
-        return users.values();
-    }
-
-    public User get(Long id) {
-        return users.get(id);
-    }
-
-    public HashMap<Long, Set<Long>> getFriends() {
-        return friends;
-    }
-
-    public Set<Long> getFriendsByUser(Long id) {
-        return friends.get(id);
-    }
-
-    public boolean setFriendsAtUser(Long userId, Long otherId) {
-        return friends.get(userId).add(otherId);
-    }
-
     public User add(User user) {
         log.trace("Текущий максимальный id пользователя: {}", user.getId());
         if (user.getName() == null || user.getName().isBlank()) {
@@ -52,6 +32,26 @@ public class InMemoryUserRepository implements UserRepository {
 
     public User update(Long id, User user) {
         return users.put(id, user);
+    }
+
+    public Collection<User> getAll() {
+        return users.values();
+    }
+
+    public User get(Long id) {
+        return users.get(id);
+    }
+
+    public Set<Long> getFriendsByUser(Long id) {
+        return friends.get(id);
+    }
+
+    public boolean setFriendsAtUser(Long userId, Long otherId) {
+        return friends.get(userId).add(otherId);
+    }
+
+    public boolean removeFriendsAtUser(Long userId, Long otherId) {
+        return friends.get(userId).remove(otherId);
     }
 
 }

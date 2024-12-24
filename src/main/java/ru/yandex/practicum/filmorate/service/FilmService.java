@@ -7,8 +7,9 @@ import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -57,11 +58,12 @@ public class FilmService {
         return filmRepository.getLikes().get(filmId).remove(userId);
     }
 
-    /*
-        вывод 10 наиболее популярных фильмов по количеству лайков. должно быть логикой хранилища(в будущей бд)
-       */
     public Collection<Film> showPopularFilms(Integer count) {
-        filmRepository.getSortedFilms().
+ Set<Film> films = new HashSet<>();
+ while (films.size() < count) {
+     films.add(filmRepository.getSortedFilms().stream().iterator().next().)
+ }
+        filmRepository.getSortedFilms().stream().
         return filmRepository.getSortedFilms();
 /*        Collection<Film> films = filmRepository.getAll();
         int size = 0;
@@ -73,7 +75,6 @@ public class FilmService {
 
         films.stream().sorted().peek(film -> film.getLikes().size()).takeWhile()*/
     }
-
 
     private long getNextId() {
         long uniqueId = filmRepository.getFilms().keySet()

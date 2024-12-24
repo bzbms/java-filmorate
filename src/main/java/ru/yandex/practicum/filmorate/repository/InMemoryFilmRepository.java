@@ -22,15 +22,12 @@ public class InMemoryFilmRepository implements FilmRepository {
     Comparator<Film> filmComparator = new Comparator<Film>() {
         @Override
         public int compare(Film film1, Film film2) {
-            return film1.getRating() - film2.getRating();
+            return film2.getRating() - film1.getRating();
         }
     };
 
-    private final Set<Film> filmz = new TreeSet<>(filmComparator);
-
-    public Set<Film> getSortedFilms() {
-        return filmz;
-    }
+    @Getter
+    private final Set<Film> sortedFilms = new TreeSet<>(filmComparator);
 
     public Collection<Film> getAll() {
         return films.values();

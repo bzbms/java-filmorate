@@ -58,7 +58,11 @@ public class UserController {
     @PutMapping("/{userId}/friends/{friendId}")
     public void addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         log.debug("От пользователя с id={} совершён запрос на добавление друга id={} ", userId, friendId);
-        service.addFriend(userId, userId);
+        if (service.addFriend(userId, userId)) {
+            log.debug("Пользователи id={} и id={} теперь друзья", userId, friendId);
+        } else {
+            log.trace("Пользователю с id={} не добавился друг с id={}", userId, friendId);
+        }
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
@@ -68,7 +72,11 @@ public class UserController {
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", userId)));
         service.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
-        service.deleteFriend(userId, userId);
+        if (service.deleteFriend(userId, userId)) {
+            log.debug("Пользователи id={} и id={} теперь не числятся в друзьях", userId, friendId);
+        } else {
+            log.trace("У пользователя с id={} не был удалён друг с id={}", userId, friendId);
+        }
     }
 
     @GetMapping("/{userId}/friends")
