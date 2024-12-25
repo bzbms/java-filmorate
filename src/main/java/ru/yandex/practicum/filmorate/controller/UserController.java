@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.Collection;
 
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validator.Group;
@@ -36,7 +37,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@Validated(Group.Create.class) @RequestBody User user) {
+    public User create(@Validated(Group.Create.class) @RequestBody User user) throws NotFoundException, ValidationException {
         log.debug("Запрос на создание пользователя {} прошёл валидацию.", user.getLogin());
         return service.add(user);
     }
@@ -50,7 +51,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User findUser(@PathVariable("userId") Long userId) {
-        log.debug("Запрошен фильм c id={}", userId);
+        log.debug("Запрошен пользователь c id={}", userId);
         return service.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
     }
@@ -58,10 +59,14 @@ public class UserController {
     @PutMapping("/{userId}/friends/{friendId}")
     public void addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         log.debug("От пользователя с id={} совершён запрос на добавление друга id={} ", userId, friendId);
+        service.get(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
+        service.get(friendId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
         if (service.addFriend(userId, userId)) {
-            log.debug("Пользователи id={} и id={} теперь друзья", userId, friendId);
+            log.info("Пользователи id={} и id={} теперь друзья", userId, friendId);
         } else {
-            log.trace("Пользователю с id={} не добавился друг с id={}", userId, friendId);
+            log.trace("Пользователь {} попытался стать сам себе другом :В", userId);
         }
     }
 
@@ -69,11 +74,11 @@ public class UserController {
     public void deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         log.trace("От пользователя с id={} совершён запрос на удаление друга id={} ", userId, friendId);
         service.get(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", userId)));
-        service.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
+        service.get(friendId)
+                .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
         if (service.deleteFriend(userId, userId)) {
-            log.debug("Пользователи id={} и id={} теперь не числятся в друзьях", userId, friendId);
+            log.info("Пользователи id={} и id={} теперь не числятся в друзьях", userId, friendId);
         } else {
             log.trace("У пользователя с id={} не был удалён друг с id={}", userId, friendId);
         }

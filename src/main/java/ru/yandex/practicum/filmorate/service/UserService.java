@@ -5,16 +5,13 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    UserRepository repository;
+    private final UserRepository repository;
 
     public Collection<User> getAll() {
         return repository.getAll();
@@ -51,18 +48,38 @@ public class UserService {
         return Optional.empty();
     }
 
-    public boolean addFriend(Long userId, Long otherId) {
-        repository.setFriendsAtUser(userId, otherId);
-        return repository.setFriendsAtUser(otherId, userId);
+    public boolean addFriend(Long userId, Long friendId) {
+        if (userId == friendId) {
+            return false;
+        }
+        if (repository.getFriendsByUser(userId) == null) {
+            repository.setFriendsAtUser(userId, friendId);
+        } else if (repository.getFriendsByUser(friendId) == null) {
+            repository.setFriendsAtUser(friendId, userId);
+            return true;
+        } else {
+            repository.addFriendsAtUser(userId, friendId);
+            return repository.addFriendsAtUser(friendId, userId);
+        }
+        return false;
     }
 
-    public boolean deleteFriend(Long userId, Long otherId) {
-        repository.removeFriendsAtUser(userId, otherId);
-        return repository.removeFriendsAtUser(otherId, userId);
+    public boolean deleteFriend(Long userId, Long friendId) {
+        if (repository.getFriendsByUser(userId) == null || repository.getFriendsByUser(friendId) == null) {
+            return false;
+        } else {
+            repository.removeFriendsAtUser(userId, friendId);
+            return repository.removeFriendsAtUser(friendId, userId);
+        }
     }
 
     public Collection<User> showFriendsByUser(Long userId) {
-        return repository.getFriendsByUser(userId).stream().map(id -> repository.get(id)).collect(Collectors.toList());
+        Set<Long> friends = repository.getFriendsByUser(userId);
+        Collection<User> users = new ArrayList<>();
+        for (Long id : friends) {
+            users.add(repository.get(id));
+        }
+        return users;//repository.getFriendsByUser(userId).stream().map(repository::get).collect(Collectors.toList());
     }
 
     public Collection<User> showFriendsCommonWithUser(Long userId, Long otherId) {

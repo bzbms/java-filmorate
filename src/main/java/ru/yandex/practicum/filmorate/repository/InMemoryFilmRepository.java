@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
@@ -19,15 +18,8 @@ public class InMemoryFilmRepository implements FilmRepository {
     // Храним по id фильма множество id юзеров, размер множества является рейтингом популярности
     private final HashMap<Long, Set<Long>> likes = new HashMap<>();
 
-    Comparator<Film> filmComparator = new Comparator<Film>() {
-        @Override
-        public int compare(Film film1, Film film2) {
-            return film2.getRating() - film1.getRating();
-        }
-    };
-
-    @Getter
-    private final Set<Film> sortedFilms = new TreeSet<>(filmComparator);
+    private final Comparator<Film> likeComparator = (film1, film2) ->
+            likes.get(film2.getId()).size() - likes.get(film1.getId()).size();
 
     public Collection<Film> getAll() {
         return films.values();

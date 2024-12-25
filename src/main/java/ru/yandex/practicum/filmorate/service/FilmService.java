@@ -4,18 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
-import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmRepository filmRepository;
-    private final UserRepository userRepository;
 
     public Collection<Film> getAll() {
         return filmRepository.getAll();
@@ -59,21 +56,12 @@ public class FilmService {
     }
 
     public Collection<Film> showPopularFilms(Integer count) {
- Set<Film> films = new HashSet<>();
- while (films.size() < count) {
-     films.add(filmRepository.getSortedFilms().stream().iterator().next().)
- }
-        filmRepository.getSortedFilms().stream().
-        return filmRepository.getSortedFilms();
-/*        Collection<Film> films = filmRepository.getAll();
-        int size = 0;
-        for (Film film : films) {
-            if (size < film.getLikes().size()) {
-                size = film.getLikes().size();
-            }
-        }
-
-        films.stream().sorted().peek(film -> film.getLikes().size()).takeWhile()*/
+        // Размер Set'а лайков по id одного фильма, сравниваем с размером Set'а лайков другого.
+        // В начале списка фильмы с самым большим кол-вом лайков.
+        return filmRepository.getFilms().values().stream()
+                .sorted(filmRepository.getLikeComparator())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     private long getNextId() {

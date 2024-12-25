@@ -20,7 +20,9 @@ public interface UserRepository {
 
     Set<Long> getFriendsByUser(Long id);
 
-    boolean setFriendsAtUser(Long userId, Long otherId);
+    void setFriendsAtUser(Long userId, Long otherId);
+
+    boolean addFriendsAtUser(Long userId, Long otherId);
 
     boolean removeFriendsAtUser(Long userId, Long otherId);
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -38,7 +39,7 @@ public class FilmController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) //201
-    public Film create(@Validated(Group.Create.class) @RequestBody Film film) {
+    public Film create(@Validated(Group.Create.class) @RequestBody Film film) throws NotFoundException, ValidationException {
         log.debug("Запрос на создание фильма {} прошёл валидацию.", film.getName());
         return service.add(film);
     }

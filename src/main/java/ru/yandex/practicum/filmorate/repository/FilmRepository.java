@@ -18,5 +18,5 @@ public interface FilmRepository {
 
     Map<Long, Set<Long>> getLikes();
 
-    Set<Film> getSortedFilms();
+    Comparator<Film> getLikeComparator();
 }

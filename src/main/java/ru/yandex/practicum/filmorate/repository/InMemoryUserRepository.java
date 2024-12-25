@@ -6,10 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Repository
@@ -46,7 +43,13 @@ public class InMemoryUserRepository implements UserRepository {
         return friends.get(id);
     }
 
-    public boolean setFriendsAtUser(Long userId, Long otherId) {
+    public void setFriendsAtUser(Long userId, Long otherId) {
+        Set<Long> friendsIds = new HashSet<>();
+        friendsIds.add(otherId);
+        friends.put(userId, friendsIds);
+    }
+
+    public boolean addFriendsAtUser(Long userId, Long otherId) {
         return friends.get(userId).add(otherId);
     }
 
