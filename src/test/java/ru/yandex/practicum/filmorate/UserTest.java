@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.validator.Group;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +29,7 @@ public class UserTest {
 
     @Test
     void badEmail() {
-        User user = new User(1, "name", "emailya.ru@", "login", LocalDate.of(1990, 1, 1));
+        User user = new User(1, "name", "emailya.ru@", "login", LocalDate.of(1990, 1, 1), new HashSet<>());
 
         Set<ConstraintViolation<User>> violations = validator.validate(user, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
@@ -38,7 +39,7 @@ public class UserTest {
 
     @Test
     void badLogin() {
-        User user = new User(1, "name", "email@ya.ru", "Ы", LocalDate.of(1990, 1, 1));
+        User user = new User(1, "name", "email@ya.ru", "Ы", LocalDate.of(1990, 1, 1), new HashSet<>());
 
         Set<ConstraintViolation<User>> violations = validator.validate(user, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
@@ -48,7 +49,7 @@ public class UserTest {
 
     @Test
     void badBirthday() {
-        User user = new User(1, "name", "email@ya.ru", "login", LocalDate.of(2990, 1, 1));
+        User user = new User(1, "name", "email@ya.ru", "login", LocalDate.of(2990, 1, 1), new HashSet<>());
 
         Set<ConstraintViolation<User>> violations = validator.validate(user, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");

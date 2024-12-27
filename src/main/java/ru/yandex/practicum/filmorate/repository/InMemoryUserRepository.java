@@ -1,29 +1,25 @@
 package ru.yandex.practicum.filmorate.repository;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 
-@Slf4j
 @Repository
-@Getter
-@Setter
 public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
-    private final HashMap<Long, Set<Long>> friends = new HashMap<>();
+
+    public Collection<User> getAll() {
+        return users.values();
+    }
 
     public User add(User user) {
-        log.trace("Текущий максимальный id пользователя: {}", user.getId());
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.debug("Имя пользователя с id {} было присвоено от login.", user.getId());
-        }
         users.put(user.getId(), user);
-        log.info("Пользователь {} добавлен с id {}", user.getLogin(), user.getId());
         return user;
     }
 
@@ -31,30 +27,32 @@ public class InMemoryUserRepository implements UserRepository {
         return users.put(id, user);
     }
 
-    public Collection<User> getAll() {
-        return users.values();
-    }
-
-    public User get(Long id) {
-        return users.get(id);
+    public Optional<User> get(Long id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     public Set<Long> getFriendsByUser(Long id) {
-        return friends.get(id);
+        return users.get(id).getFriends();
     }
 
-    public void setFriendsAtUser(Long userId, Long otherId) {
-        Set<Long> friendsIds = new HashSet<>();
-        friendsIds.add(otherId);
-        friends.put(userId, friendsIds);
+    public void setFriendsAtUser(Long userId) {
+        users.get(userId).setFriends(new HashSet<>());
     }
 
-    public boolean addFriendsAtUser(Long userId, Long otherId) {
-        return friends.get(userId).add(otherId);
+    public void addFriendsAtUser(Long userId, Long otherId) {
+        users.get(userId).getFriends().add(otherId);
     }
 
-    public boolean removeFriendsAtUser(Long userId, Long otherId) {
-        return friends.get(userId).remove(otherId);
+    public void removeFriendsAtUser(Long userId, Long otherId) {
+        users.get(userId).getFriends().remove(otherId);
+    }
+
+    public long getNextId() {
+        return users.keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(1);
     }
 
 }

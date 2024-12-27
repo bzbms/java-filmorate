@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.validator.Group;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +29,7 @@ public class FilmTest {
 
     @Test
     void badName() {
-        Film film = new Film(1, "", "description", LocalDate.of(1990, 1, 1), 10);
+        Film film = new Film(1, "", "description", LocalDate.of(1990, 1, 1), 10, new HashSet<>());
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
@@ -38,7 +39,7 @@ public class FilmTest {
 
     @Test
     void badReleaseDate() {
-        Film film = new Film(1, "name", "description", LocalDate.of(1790, 1, 1), 10);
+        Film film = new Film(1, "name", "description", LocalDate.of(1790, 1, 1), 10, new HashSet<>());
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");
@@ -48,7 +49,7 @@ public class FilmTest {
 
     @Test
     void badDescription() {
-        Film film = new Film(1, "name", "", LocalDate.of(1990, 1, 1), 10);
+        Film film = new Film(1, "name", "", LocalDate.of(1990, 1, 1), 10, new HashSet<>());
         film.setDescription("Плюсы и минусы видеорегистраторов:\n" +
                 "На Techage легче попасть. Множество добавлений в приложение. Никак поменять положение времени\\названия канала, на старых версиях и название канала не поменять.\n" +
                 "У Praxis умирает облако. Множество добавлений в приложение.\n" +
@@ -64,7 +65,7 @@ public class FilmTest {
 
     @Test
     void badDuration() {
-        Film film = new Film(1, "name", "description", LocalDate.of(1990, 1, 1), -10);
+        Film film = new Film(1, "name", "description", LocalDate.of(1990, 1, 1), -10, new HashSet<>());
 
         Set<ConstraintViolation<Film>> violations = validator.validate(film, Group.Create.class);
         assertFalse(violations.isEmpty(), "Список нарушений валидации не пуст.");

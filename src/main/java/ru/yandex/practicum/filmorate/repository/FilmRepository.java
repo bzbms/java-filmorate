@@ -2,21 +2,24 @@ package ru.yandex.practicum.filmorate.repository;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 
 public interface FilmRepository {
+
+    Collection<Film> getAll();
 
     Film add(Film film);
 
     Film update(Long id, Film film);
 
-    Collection<Film> getAll();
+    Optional<Film> get(Long id);
 
-    Film get(Long id);
+    void setLikesAtFilm(Long userId);
 
-    Map<Long, Film> getFilms();
+    Set<Long> getLikesAtFilm(Long id);
 
-    Map<Long, Set<Long>> getLikes();
+    long getNextId();
 
-    Comparator<Film> getLikeComparator();
 }
