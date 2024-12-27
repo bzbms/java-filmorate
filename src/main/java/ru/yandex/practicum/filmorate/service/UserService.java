@@ -73,8 +73,10 @@ public class UserService {
     public void deleteFriend(Long userId, Long friendId) {
         repository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
-        repository.get(friendId)
-                .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
+        if (!userId.equals(friendId)) {
+            repository.get(friendId)
+                    .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
+        }
         if (repository.getFriendsByUser(userId) == null) {
             throw new NotFoundException(String.format("У пользователя %d нет друзей", userId));
         } else if (repository.getFriendsByUser(userId).contains(friendId)) {
