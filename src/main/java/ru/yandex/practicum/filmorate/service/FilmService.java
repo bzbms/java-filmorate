@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Service
