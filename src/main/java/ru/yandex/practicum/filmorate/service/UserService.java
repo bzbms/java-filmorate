@@ -58,39 +58,24 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
         repository.get(friendId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
-        if (repository.getFriendsByUser(userId) == null) {
-            repository.setFriendsAtUser(userId);
-            repository.addFriendsAtUser(userId, friendId);
-        } else if (repository.getFriendsByUser(friendId) == null) {
-            repository.setFriendsAtUser(friendId);
-            repository.addFriendsAtUser(friendId, userId);
-        } else {
-            repository.addFriendsAtUser(userId, friendId);
-            repository.addFriendsAtUser(friendId, userId);
-        }
+        repository.addFriendsAtUser(userId, friendId);
+        repository.addFriendsAtUser(friendId, userId);
+
     }
 
     public void deleteFriend(Long userId, Long friendId) {
         repository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
-        if (!userId.equals(friendId)) {
-            repository.get(friendId)
-                    .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
+        if (!repository.getFriendsByUser(userId).contains(friendId)) {
+            throw new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId));
         }
-        if (repository.getFriendsByUser(userId) == null) {
-            throw new NotFoundException(String.format("У пользователя %d нет друзей", userId));
-        } else if (repository.getFriendsByUser(userId).contains(friendId)) {
-            repository.removeFriendsAtUser(userId, friendId);
-            repository.removeFriendsAtUser(friendId, userId);
-        }
+        repository.removeFriendsAtUser(userId, friendId);
+        repository.removeFriendsAtUser(friendId, userId);
     }
 
     public Collection<User> showFriendsByUser(Long userId) {
         repository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
-        if (repository.getFriendsByUser(userId) == null) {
-            repository.setFriendsAtUser(userId);
-        }
         return repository.getFriendsByUser(userId).stream()
                 .map(id -> repository.get(id).get())
                 .collect(Collectors.toList());
@@ -101,11 +86,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", userId)));
         repository.get(otherId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", otherId)));
-        if (repository.getFriendsByUser(userId) == null) {
-            repository.setFriendsAtUser(userId);
-        } else if (repository.getFriendsByUser(otherId) == null) {
-            repository.setFriendsAtUser(otherId);
-        }
         Set<Long> intersection = new HashSet<>(repository.getFriendsByUser(userId));
         intersection.retainAll(repository.getFriendsByUser(otherId));
         return intersection.stream()

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.Group;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -35,5 +36,5 @@ public class User {
             groups = {Group.Create.class, Group.Update.class})
     private LocalDate birthday;
 
-    private Set<Long> friends;
+    private Set<Long> friends = new HashSet<>();
 }

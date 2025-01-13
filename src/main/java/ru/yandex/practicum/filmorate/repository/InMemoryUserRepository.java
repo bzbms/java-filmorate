@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
     private final Map<Long, User> users = new HashMap<>();
+    private int uniqueId = 0;
 
     public Collection<User> getAll() {
         return users.values();
@@ -28,15 +28,12 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     public Optional<User> get(Long id) {
+        System.out.println(users);
         return Optional.ofNullable(users.get(id));
     }
 
     public Set<Long> getFriendsByUser(Long id) {
         return users.get(id).getFriends();
-    }
-
-    public void setFriendsAtUser(Long userId) {
-        users.get(userId).setFriends(new HashSet<>());
     }
 
     public void addFriendsAtUser(Long userId, Long otherId) {
@@ -45,14 +42,11 @@ public class InMemoryUserRepository implements UserRepository {
 
     public void removeFriendsAtUser(Long userId, Long otherId) {
         users.get(userId).getFriends().remove(otherId);
+
     }
 
     public long getNextId() {
-        return users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(1);
+        return ++uniqueId;
     }
 
 }

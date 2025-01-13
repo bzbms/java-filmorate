@@ -57,9 +57,7 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
         userRepository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-        if (filmRepository.getLikesAtFilm(filmId) == null) {
-            filmRepository.setLikesAtFilm(filmId);
-        } else if (filmRepository.getLikesAtFilm(filmId).contains(userId)) {
+        if (filmRepository.getLikesAtFilm(filmId).contains(userId)) {
             throw new IncorrectRequestException(String.format("Лайк уже был добавлен фильму c id=%d от пользователя c id=%d", filmId, userId));
         } else {
             filmRepository.getLikesAtFilm(filmId).add(userId);
@@ -71,9 +69,6 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
         userRepository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-        if (filmRepository.getLikesAtFilm(filmId) == null) {
-            throw new NotFoundException(String.format("У фильма %d нет лайков", filmId));
-        }
         if (!filmRepository.getLikesAtFilm(filmId).contains(userId)) {
             throw new IncorrectRequestException(String
                     .format("Удалить лайк у фильму %d от пользователя %d не удалось - он не поставлен", filmId, userId));
@@ -85,6 +80,9 @@ public class FilmService {
     public Collection<Film> showPopularFilms(Integer count) {
         // Размер Set'а лайков по id одного фильма, сравниваем с размером Set'а лайков другого.
         // В начале списка фильмы с самым большим кол-вом лайков.
+        if (count < 0) {
+            throw new IncorrectRequestException(String.format("Кол-во фильмов не должно быть отрицательным, count: %d", count));
+        }
         return filmRepository.getAll().stream()
                 .filter(film -> film.getLikes() != null)
                 .sorted(likeComparator)

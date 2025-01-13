@@ -18,8 +18,6 @@ public interface UserRepository {
 
     Set<Long> getFriendsByUser(Long id);
 
-    void setFriendsAtUser(Long userId);
-
     void addFriendsAtUser(Long userId, Long otherId);
 
     void removeFriendsAtUser(Long userId, Long otherId);

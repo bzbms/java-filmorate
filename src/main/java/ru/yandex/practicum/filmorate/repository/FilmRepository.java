@@ -16,9 +16,11 @@ public interface FilmRepository {
 
     Optional<Film> get(Long id);
 
-    void setLikesAtFilm(Long userId);
-
     Set<Long> getLikesAtFilm(Long id);
+
+    void addLikesAtFilm(Long userId);
+
+    void removeLikesAtFilm(Long userId);
 
     long getNextId();
 

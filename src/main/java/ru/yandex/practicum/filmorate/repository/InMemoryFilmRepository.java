@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.HashSet;
 
 @Repository
 public class InMemoryFilmRepository implements FilmRepository {
     private final Map<Long, Film> films = new HashMap<>();
+    private int uniqueId = 0;
 
     public Collection<Film> getAll() {
         return films.values();
@@ -31,21 +31,20 @@ public class InMemoryFilmRepository implements FilmRepository {
         return Optional.ofNullable(films.get(id));
     }
 
-    public void setLikesAtFilm(Long id) {
-        films.get(id).setLikes(new HashSet<>());
-        films.get(id).getLikes().add(id);
-    }
-
     public Set<Long> getLikesAtFilm(Long id) {
         return films.get(id).getLikes();
     }
 
+    public void addLikesAtFilm(Long id) {
+        films.get(id).getLikes().add(id);
+    }
+
+    public void removeLikesAtFilm(Long id) {
+        films.get(id).getLikes().remove(id);
+    }
+
     public long getNextId() {
-        return films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(1);
+        return ++uniqueId;
     }
 
 }
