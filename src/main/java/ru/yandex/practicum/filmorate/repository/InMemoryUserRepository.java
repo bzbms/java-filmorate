@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class InMemoryUserRepository implements UserRepository {
@@ -19,6 +18,7 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     public User add(User user) {
+        user.setId(getNextId());
         users.put(user.getId(), user);
         return user;
     }
@@ -28,24 +28,10 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     public Optional<User> get(Long id) {
-        System.out.println(users);
         return Optional.ofNullable(users.get(id));
     }
 
-    public Set<Long> getFriendsByUser(Long id) {
-        return users.get(id).getFriends();
-    }
-
-    public void addFriendsAtUser(Long userId, Long otherId) {
-        users.get(userId).getFriends().add(otherId);
-    }
-
-    public void removeFriendsAtUser(Long userId, Long otherId) {
-        users.get(userId).getFriends().remove(otherId);
-
-    }
-
-    public long getNextId() {
+    private long getNextId() {
         return ++uniqueId;
     }
 

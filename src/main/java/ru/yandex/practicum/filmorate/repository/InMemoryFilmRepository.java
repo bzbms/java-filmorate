@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public class InMemoryFilmRepository implements FilmRepository {
@@ -19,6 +18,7 @@ public class InMemoryFilmRepository implements FilmRepository {
     }
 
     public Film add(Film film) {
+        film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
     }
@@ -31,19 +31,7 @@ public class InMemoryFilmRepository implements FilmRepository {
         return Optional.ofNullable(films.get(id));
     }
 
-    public Set<Long> getLikesAtFilm(Long id) {
-        return films.get(id).getLikes();
-    }
-
-    public void addLikesAtFilm(Long id) {
-        films.get(id).getLikes().add(id);
-    }
-
-    public void removeLikesAtFilm(Long id) {
-        films.get(id).getLikes().remove(id);
-    }
-
-    public long getNextId() {
+    private long getNextId() {
         return ++uniqueId;
     }
 

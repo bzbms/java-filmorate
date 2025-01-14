@@ -25,7 +25,6 @@ public class FilmService {
     }
 
     public Film add(Film film) {
-        film.setId(filmRepository.getNextId());
         return filmRepository.add(film);
     }
 
@@ -53,27 +52,29 @@ public class FilmService {
     }
 
     public void addLike(Long filmId, Long userId) {
-        filmRepository.get(filmId)
+        Film film = filmRepository.get(filmId)
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
         userRepository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-        if (filmRepository.getLikesAtFilm(filmId).contains(userId)) {
+        if (film.getLikes().contains(userId)) {
             throw new IncorrectRequestException(String.format("Лайк уже был добавлен фильму c id=%d от пользователя c id=%d", filmId, userId));
         } else {
-            filmRepository.getLikesAtFilm(filmId).add(userId);
+            film.getLikes().add(userId);
+            filmRepository.update(filmId, film);
         }
     }
 
     public void deleteLike(Long filmId, Long userId) {
-        filmRepository.get(filmId)
+        Film film = filmRepository.get(filmId)
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
         userRepository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-        if (!filmRepository.getLikesAtFilm(filmId).contains(userId)) {
+        if (!film.getLikes().contains(userId)) {
             throw new IncorrectRequestException(String
                     .format("Удалить лайк у фильму %d от пользователя %d не удалось - он не поставлен", filmId, userId));
         } else {
-            filmRepository.getLikesAtFilm(filmId).remove(userId);
+            film.getLikes().remove(userId);
+            filmRepository.update(filmId, film);
         }
     }
 

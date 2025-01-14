@@ -4,7 +4,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
 
 public interface UserRepository {
 
@@ -15,13 +14,5 @@ public interface UserRepository {
     User update(Long id, User user);
 
     Optional<User> get(Long id);
-
-    Set<Long> getFriendsByUser(Long id);
-
-    void addFriendsAtUser(Long userId, Long otherId);
-
-    void removeFriendsAtUser(Long userId, Long otherId);
-
-    long getNextId();
 
 }
