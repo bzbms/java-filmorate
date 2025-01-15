@@ -60,7 +60,6 @@ public class FilmService {
             throw new IncorrectRequestException(String.format("Лайк уже был добавлен фильму c id=%d от пользователя c id=%d", filmId, userId));
         } else {
             film.getLikes().add(userId);
-            filmRepository.update(filmId, film);
         }
     }
 
@@ -74,7 +73,6 @@ public class FilmService {
                     .format("Удалить лайк у фильму %d от пользователя %d не удалось - он не поставлен", filmId, userId));
         } else {
             film.getLikes().remove(userId);
-            filmRepository.update(filmId, film);
         }
     }
 

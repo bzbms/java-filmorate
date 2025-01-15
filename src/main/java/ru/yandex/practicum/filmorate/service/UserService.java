@@ -59,8 +59,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
-        repository.update(userId, user);
-        repository.update(friendId, friend);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -70,8 +68,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь-друг c id=%d не найден", friendId)));
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
-        repository.update(userId, user);
-        repository.update(friendId, friend);
     }
 
     public Collection<User> showFriendsByUser(Long userId) {
