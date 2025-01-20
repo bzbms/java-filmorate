@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.validator.Group;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -32,4 +34,7 @@ public class Film {
 
     @Positive(message = "Продолжительность должна быть положительной", groups = {Group.Create.class, Group.Update.class})
     private int duration;
+
+    private Set<Long> likes = new HashSet<>();
+
 }
