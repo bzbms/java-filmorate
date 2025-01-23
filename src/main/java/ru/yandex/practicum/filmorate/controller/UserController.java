@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Collection;
 
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validator.Group;
@@ -35,10 +37,13 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@Validated(Group.Create.class) @RequestBody User user) {
-        log.debug("Запрос на создание пользователя {} прошёл валидацию.", user.getLogin());
-        return service.add(user);
+    public UserDto createUser(@Validated(Group.Create.class) @RequestBody NewUserRequest userRequest) {
+        log.debug("Запрос на создание пользователя {} прошёл валидацию.", userRequest.getLogin());
+        return service.add(userRequest);
     }
+/*    public User create(@Validated(Group.Create.class) @RequestBody User user) {
+        return service.add(user);
+    }*/
 
     @PutMapping
     public User update(@Validated(Group.Update.class) @RequestBody User user) {

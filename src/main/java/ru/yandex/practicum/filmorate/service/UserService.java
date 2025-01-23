@@ -2,12 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -20,11 +24,14 @@ public class UserService {
         return repository.getAll();
     }
 
-    public User add(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
+    public UserDto add(NewUserRequest userRequest) {
+        if (userRequest.getName() == null || userRequest.getName().isBlank()) {
+            userRequest.setName(userRequest.getLogin());
         }
-        return repository.add(user);
+        User user = UserMapper.mapToUser(userRequest);
+        user = repository.add(user);
+
+        return UserMapper.mapToUserDto(user);
     }
 
     public User update(User user) {

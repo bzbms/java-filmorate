@@ -1,25 +1,16 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.Group;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class User {
-    @NotNull(groups = {Group.Update.class})
-    private long id;
-
+public class NewUserRequest {
     private String name;
 
     @NotNull(message = "Не указан логин", groups = {Group.Create.class})
@@ -35,6 +26,4 @@ public class User {
     @Past(message = "Дата рождения должна быть указана в прошлом",
             groups = {Group.Create.class, Group.Update.class})
     private LocalDate birthday;
-
-    private Set<Long> friends = new HashSet<>();
 }
