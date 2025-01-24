@@ -20,8 +20,8 @@ public class JdbcFilmRepository implements FilmRepository {
     private final FilmRowMapper mapper;
     private static final String FIND_ALL_QUERY = "SELECT * FROM films";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = :id";
-    private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_mpa_id)" +
-            "VALUES (:name, :description, :release_date, :duration, :rating_mpa_id)";
+    private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration)" +
+            "VALUES (:name, :description, :release_date, :duration)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = :name, description = :description, " +
             "release_date = :release_date, duration = :duration, rating_mpa_id = :rating_mpa_id WHERE id = :id";
     private static final String INSERT_LIKE = "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)";
@@ -47,7 +47,7 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("description", film.getDescription());
         params.addValue("release_date", film.getReleaseDate());
         params.addValue("duration", film.getDuration());
-        params.addValue("rating_mpa_id", film.getRatingMpaId());
+        //params.addValue("rating_mpa_id", film.getRatingMpaId());
 
         jdbc.update(INSERT_QUERY, params, keyHolder, new String[]{"id"});
 
