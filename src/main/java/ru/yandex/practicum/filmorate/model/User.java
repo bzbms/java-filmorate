@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.Group;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -35,6 +33,4 @@ public class User {
     @Past(message = "Дата рождения должна быть указана в прошлом",
             groups = {Group.Create.class, Group.Update.class})
     private LocalDate birthday;
-
-    private Set<Long> friends = new HashSet<>();
 }

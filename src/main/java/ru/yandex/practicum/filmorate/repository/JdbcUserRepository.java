@@ -1,133 +1,129 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.IncorrectRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
 
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
+@Qualifier("JdbcUserRepository")
 @Repository
 @RequiredArgsConstructor
 public class JdbcUserRepository implements UserRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final UserRowMapper mapper;
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
-    private static final String FIND_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = ?";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = :id";
     private static final String INSERT_QUERY = "INSERT INTO users (name, login, email, birthday)" +
             "VALUES (:name, :login, :email, :birthday)";
-    private static final String UPDATE_QUERY = "UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?";
-
+    private static final String UPDATE_QUERY = "UPDATE users SET name = :name, login = :login, " +
+            "email = :email, birthday = :birthday WHERE id = :id";
+    private static final String INSERT_FRIEND = "INSERT INTO friends (user_id, friend_id, approved) VALUES (:user_id, :friend_id, :approved)";
+    private static final String FRIEND_CONFIRMATION = "UPDATE friends SET approved = :approved WHERE user_id = :user_id AND friend_id = :friend_id";
+    private static final String DELETE_FRIEND = "DELETE FROM friends WHERE user_id = :user_id AND friend_id = :friend_id";
+    private static final String FIND_FRIENDS_QUERY = """
+            SELECT * FROM users
+            JOIN friends ON users.id = friends.user_id
+            WHERE friends.user_id = :id
+            """;
+    private static final String FIND_COMMON_FRIENDS = """
+            SELECT * FROM users
+            WHERE id IN (
+            SELECT friend_id FROM friends
+            WHERE user_id = :user_id
+            INTERSECT
+            SELECT friend_id from friends
+            WHERE user_id = :friend_id)
+            """;
 
     @Override
     public User add(User user) {
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("name", user.getName());
-        parameters.addValue("login", user.getLogin());
-        parameters.addValue("email", user.getEmail());
-        parameters.addValue("birthday", user.getBirthday());
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("name", user.getName());
+        params.addValue("login", user.getLogin());
+        params.addValue("email", user.getEmail());
+        params.addValue("birthday", user.getBirthday());
 
-        jdbc.update(INSERT_QUERY, parameters, keyHolder, new String[]{"user_id"});
+        jdbc.update(INSERT_QUERY, params, keyHolder, new String[]{"id"});
 
         user.setId(keyHolder.getKeyAs(Integer.class).longValue());
         return user;
     }
 
-    /*
-    @Override
-    public User add(User user) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert((DataSource) jdbc)
-                .withTableName("USERS")
-                .usingGeneratedKeyColumns("user_id");
-        Map<String, Object> param = new HashMap<>();
-        param.put("EMAIL", user.getEmail());
-        param.put("LOGIN", user.getLogin());
-        param.put("NAME", user.getName());
-        param.put("BIRTHDAY", user.getBirthday());
-        Number userId = simpleJdbcInsert.executeAndReturnKey(param);
-        user.setId(userId.longValue());
-        return user;
-    }
-
-
-    protected long insert(String query, Object... params) {
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(connection -> {
-            PreparedStatement ps = connection
-                    .prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-            for (int idx = 0; idx < params.length; idx++) {
-                ps.setObject(idx + 1, params[idx]);
-            }
-            return ps;
-        }, keyHolder);
-
-        Long id = keyHolder.getKeyAs(Long.class);
-        if (id != null) {
-            return id;
-        } else {
-            throw new IncorrectRequestException("Не удалось сохранить данные");
-        }
-    }
-*/
-
     @Override
     public Collection<User> getAll() {
-        return null;
+        return jdbc.query(FIND_ALL_QUERY, mapper);
     }
 
     @Override
-    public User update(Long id, User user) {
-        return null;
+    public User update(User user) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", user.getId());
+        params.addValue("name", user.getName());
+        params.addValue("login", user.getLogin());
+        params.addValue("email", user.getEmail());
+        params.addValue("birthday", user.getBirthday());
+        jdbc.update(UPDATE_QUERY, params);
+
+        return user;
     }
 
     @Override
     public Optional<User> get(Long id) {
-        return Optional.empty();
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", id);
+        return Optional.ofNullable(jdbc.queryForObject(FIND_BY_ID_QUERY, params, mapper));
     }
 
-
-
-/*
-
-    public List<User> findAll() {
-        String query = "SELECT * FROM users";
-        return jdbc.query(query, mapper);
+    @Override
+    public void addFriend(Long userId, Long friendId, boolean approved) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", userId);
+        params.addValue("friend_id", friendId);
+        params.addValue("approved", approved);
+        jdbc.update(INSERT_FRIEND, params);
     }
 
-    public Optional<User> findByEmail(String email) {
-        String query = "SELECT * FROM users WHERE email = ?";
-        try {
-            User result = jdbc.queryForObject(query, mapper, email);
-            return Optional.ofNullable(result);
-        } catch (EmptyResultDataAccessException ignored) {
-            return Optional.empty();
-        }
+    @Override
+    public void approveFriend(Long userId, Long friendId, boolean approved) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", userId);
+        params.addValue("friend_id", friendId);
+        params.addValue("approved", approved);
+        jdbc.update(FRIEND_CONFIRMATION, params);
     }
 
-    public Optional<User> findById(long userId) {
-        String query = "SELECT * FROM users WHERE id = ?";
-        try {
-            User result = jdbc.queryForObject(query, mapper, userId);
-            return Optional.ofNullable(result);
-        } catch (EmptyResultDataAccessException ignored) {
-            return Optional.empty();
-        }
-    }*/
+    @Override
+    public void deleteFriend(Long userId, Long friendId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", userId);
+        params.addValue("friend_id", friendId);
+        jdbc.update(DELETE_FRIEND, params);
+    }
+
+    @Override
+    public List<User> showFriendsByUser(Long userId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("id", userId);
+        return jdbc.query(FIND_FRIENDS_QUERY, params, mapper);
+    }
+
+    @Override
+    public Collection<User> showFriendsCommonWithUser(Long userId, Long otherId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("user_id", userId);
+        params.addValue("friend_id", otherId);
+        return jdbc.query(FIND_COMMON_FRIENDS, params, mapper);
+    }
 }

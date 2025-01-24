@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Collection;
 
-import ru.yandex.practicum.filmorate.dto.NewUserRequest;
-import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.validator.Group;
@@ -37,13 +35,10 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto createUser(@Validated(Group.Create.class) @RequestBody NewUserRequest userRequest) {
-        log.debug("Запрос на создание пользователя {} прошёл валидацию.", userRequest.getLogin());
-        return service.add(userRequest);
-    }
-/*    public User create(@Validated(Group.Create.class) @RequestBody User user) {
+    public User create(@Validated(Group.Create.class) @RequestBody User user) {
+        log.debug("Запрос на создание пользователя {} прошёл валидацию.", user.getLogin());
         return service.add(user);
-    }*/
+    }
 
     @PutMapping
     public User update(@Validated(Group.Update.class) @RequestBody User user) {
@@ -61,6 +56,12 @@ public class UserController {
     public void addFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         log.debug("От пользователя с id={} совершён запрос на добавление друга id={} ", userId, friendId);
         service.addFriend(userId, friendId);
+    }
+
+    @PutMapping("/{userId}/friends/{friendId}/approve")
+    public void approveFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        log.debug("От пользователя с id={} совершён запрос на подтверждение дружбы с id={} ", userId, friendId);
+        service.approveFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
