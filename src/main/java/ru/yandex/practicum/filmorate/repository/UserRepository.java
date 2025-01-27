@@ -25,4 +25,6 @@ public interface UserRepository {
     List<User> showFriendsByUser(Long userId);
 
     Collection<User> showFriendsCommonWithUser(Long userId, Long otherId);
+
+    Collection<Long> getUserLikes(Long id);
 }

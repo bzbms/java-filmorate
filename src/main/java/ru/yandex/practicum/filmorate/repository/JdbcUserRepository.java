@@ -2,13 +2,10 @@ package ru.yandex.practicum.filmorate.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
 
@@ -45,6 +42,7 @@ public class JdbcUserRepository implements UserRepository {
             SELECT friend_id from friends
             WHERE user_id = :friend_id)
             """;
+    private static final String USER_LIKES_QUERY = "SELECT user_id FROM likes WHERE film_id = :film_id";
 
     @Override
     public User add(User user) {
@@ -126,4 +124,12 @@ public class JdbcUserRepository implements UserRepository {
         params.addValue("friend_id", otherId);
         return jdbc.query(FIND_COMMON_FRIENDS, params, mapper);
     }
+
+    @Override
+    public Collection<Long> getUserLikes(Long filmId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        return jdbc.queryForList(USER_LIKES_QUERY, params, Long.class);
+    }
+
 }

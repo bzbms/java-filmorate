@@ -29,7 +29,7 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String SHOW_POPULAR_FILMS = """
             SELECT * FROM films
             LEFT OUTER JOIN likes ON films.id = likes.film_id
-            GROUP BY films.id
+            GROUP BY films.id, likes.user_id
             ORDER BY COUNT(likes.film_id) DESC
             LIMIT
             """;
@@ -47,7 +47,7 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("description", film.getDescription());
         params.addValue("release_date", film.getReleaseDate());
         params.addValue("duration", film.getDuration());
-        //params.addValue("rating_mpa_id", film.getRatingMpaId());
+        params.addValue("rating_mpa_id", film.getMpa().getId());
 
         jdbc.update(INSERT_QUERY, params, keyHolder, new String[]{"id"});
 
@@ -63,9 +63,8 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("description", film.getDescription());
         params.addValue("release_date", film.getReleaseDate());
         params.addValue("duration", film.getDuration());
-        params.addValue("rating_mpa_id", film.getRatingMpaId());
+        params.addValue("rating_mpa_id", film.getMpa().getId());
         jdbc.update(UPDATE_QUERY, params);
-
         return film;
     }
 

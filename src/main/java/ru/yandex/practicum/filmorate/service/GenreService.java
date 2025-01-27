@@ -23,7 +23,7 @@ public class GenreService {
                 .orElseThrow(() -> new NotFoundException(String.format("Жанр c id=%d не найден", id)));
     }
 
-    public List<Genre> getGenresOfFilm(Integer id) {
+    public List<Genre> getGenresOfFilm(Long id) {
         return repository.getGenresOfFilm(id);
     }
 

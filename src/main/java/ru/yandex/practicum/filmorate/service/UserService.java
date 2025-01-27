@@ -52,8 +52,8 @@ public class UserService {
     public void addFriend(Long userId, Long friendId) {
         existChecker(userId);
         existChecker(friendId);
-        repository.addFriend(userId, friendId, true);
-        repository.addFriend(friendId, userId, false);
+        repository.addFriend(userId, friendId, false);
+     //   repository.addFriend(friendId, userId, false);
     }
 
     public void approveFriend(Long userId, Long friendId) {

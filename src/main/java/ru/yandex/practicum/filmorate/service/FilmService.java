@@ -5,22 +5,34 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IncorrectRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.GenreRepository;
+import ru.yandex.practicum.filmorate.repository.MpaRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
     private final FilmRepository filmRepository;
     private final UserRepository userRepository;
+    private final GenreRepository genreRepository;
+    private final MpaRepository mpaRepository;
 
     public Collection<Film> getAll() {
         return filmRepository.getAll();
     }
 
     public Film add(Film film) {
+        mpaRepository.get(film.getMpa().getId())
+                .orElseThrow(() -> new NotFoundException(String.format("Рейтинг фильма(%d) c id=%d не найден", film.getId(), film.getMpa().getId())));
+        List<Genre> genresOfFilm = film.getGenres();
+        genresOfFilm.forEach(genre -> genreRepository.get(genre.getId())
+                .orElseThrow(() -> new NotFoundException(String.format("Жанр фильма(%d) c id=%d не найден", film.getId(), genre.getId()))));
+
         return filmRepository.add(film);
     }
 
@@ -38,6 +50,12 @@ public class FilmService {
         }
         if (existedFilm.getDuration() != film.getDuration()) {
             existedFilm.setDuration(film.getDuration());
+        }
+        if (existedFilm.getMpa() != film.getMpa()) {
+            existedFilm.setMpa(film.getMpa());
+        }
+        if (existedFilm.getGenres() != film.getGenres()) {
+            existedFilm.setGenres(film.getGenres());
         }
         return filmRepository.update(existedFilm);
     }

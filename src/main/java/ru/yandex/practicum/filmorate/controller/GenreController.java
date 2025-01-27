@@ -32,7 +32,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}/genres")
-    public List<Genre> getGenresOfFilm(@PathVariable Integer id) {
+    public List<Genre> getGenresOfFilm(@PathVariable Long id) {
         log.debug("Запрошены жанры фильма с ID = {}", id);
         return service.getGenresOfFilm(id);
     }

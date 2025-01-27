@@ -20,6 +20,13 @@ public class JdbcGenreRepository implements GenreRepository {
     private final GenreRowMapper mapper;
     private static final String FIND_ALL_QUERY = "SELECT * FROM genres";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM genres WHERE id = :id";
+    private static final String GENRES_OF_FILM = """
+            SELECT genres.id, genres.name
+            FROM genres
+            JOIN film_genre ON genres.id = film_genre.genre_id
+            WHERE film_genre.film_id IN (:film_id)
+            """;
+    private static final String GENRES_IDS_OF_FILM = "SELECT genre_id FROM film_genre WHERE film_id = :film_id";
 
     @Override
     public Collection<Genre> getAll() {
@@ -34,12 +41,16 @@ public class JdbcGenreRepository implements GenreRepository {
     }
 
     @Override
-    public List<Integer> getGenresIdsOfFilm(Integer id) {
-        return null;
+    public List<Integer> getGenresIdsOfFilm(Long filmId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        return jdbc.queryForList(GENRES_IDS_OF_FILM, params, Integer.class);
     }
 
     @Override
-    public List<Genre> getGenresOfFilm(Integer filmId) {
-        return null;
+    public List<Genre> getGenresOfFilm(Long filmId) {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("film_id", filmId);
+        return jdbc.query(GENRES_OF_FILM, params, mapper);
     }
 }

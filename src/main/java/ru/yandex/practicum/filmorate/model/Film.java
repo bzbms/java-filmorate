@@ -11,7 +11,9 @@ import ru.yandex.practicum.filmorate.validator.Group;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -37,7 +39,7 @@ public class Film {
 
     private Set<Long> likes = new HashSet<>();
 
-    private int RatingMpaId;
+    private Mpa mpa;
 
-    private Set<Genre> genres = new HashSet<>();
+    private List<Genre> genres = new ArrayList<>();
 }
