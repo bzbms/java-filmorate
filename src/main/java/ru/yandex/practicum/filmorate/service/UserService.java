@@ -53,7 +53,6 @@ public class UserService {
         existChecker(userId);
         existChecker(friendId);
         repository.addFriend(userId, friendId, false);
-     //   repository.addFriend(friendId, userId, false);
     }
 
     public void approveFriend(Long userId, Long friendId) {
