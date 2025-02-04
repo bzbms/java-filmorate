@@ -28,9 +28,12 @@ public class JdbcFilmRepository implements FilmRepository {
     private static final String DELETE_LIKE = "DELETE FROM likes WHERE film_id = :film_id AND user_id = :user_id";
     private static final String SHOW_POPULAR_FILMS = """
             SELECT * FROM films
-            LEFT OUTER JOIN likes ON films.id = likes.film_id
-            GROUP BY films.id, likes.user_id
-            ORDER BY COUNT(likes.film_id) DESC
+            WHERE id IN (
+            SELECT film_id
+            FROM likes
+            GROUP BY film_id
+            ORDER BY count(user_id) DESC
+            )
             LIMIT
             """;
 
@@ -93,7 +96,7 @@ public class JdbcFilmRepository implements FilmRepository {
 
     @Override
     public Collection<Film> showPopularFilms(Integer count) {
-        return jdbc.query(SHOW_POPULAR_FILMS + count, mapper);
+        return jdbc.query(SHOW_POPULAR_FILMS + " " + count, mapper);
     }
 
 }

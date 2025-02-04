@@ -30,7 +30,7 @@ public class JdbcUserRepository implements UserRepository {
     private static final String DELETE_FRIEND = "DELETE FROM friends WHERE user_id = :user_id AND friend_id = :friend_id";
     private static final String FIND_FRIENDS_QUERY = """
             SELECT * FROM users
-            JOIN friends ON users.id = friends.user_id
+            JOIN friends ON users.id = friends.friend_id
             WHERE friends.user_id = :id
             """;
     private static final String FIND_COMMON_FRIENDS = """
