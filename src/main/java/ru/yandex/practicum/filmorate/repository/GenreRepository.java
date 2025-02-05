@@ -12,7 +12,5 @@ public interface GenreRepository {
 
     Optional<Genre> get(Integer id);
 
-    List<Integer> getGenresIdsOfFilm(Long id);
-
     List<Genre> getGenresOfFilm(Long filmId);
 }

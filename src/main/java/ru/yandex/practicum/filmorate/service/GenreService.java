@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.GenreRepository;
 
 import java.util.Collection;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +21,5 @@ public class GenreService {
         return repository.get(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Жанр c id=%d не найден", id)));
     }
-
-    public List<Genre> getGenresOfFilm(Long id) {
-        return repository.getGenresOfFilm(id);
-    }
-
 
 }

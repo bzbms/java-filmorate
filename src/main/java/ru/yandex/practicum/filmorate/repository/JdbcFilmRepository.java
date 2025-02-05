@@ -20,8 +20,8 @@ public class JdbcFilmRepository implements FilmRepository {
     private final FilmRowMapper mapper;
     private static final String FIND_ALL_QUERY = "SELECT * FROM films";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = :id";
-    private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration)" +
-            "VALUES (:name, :description, :release_date, :duration)";
+    private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_mpa_id)" +
+            "VALUES (:name, :description, :release_date, :duration, :rating_mpa_id)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = :name, description = :description, " +
             "release_date = :release_date, duration = :duration, rating_mpa_id = :rating_mpa_id WHERE id = :id";
     private static final String INSERT_LIKE = "INSERT INTO likes (film_id, user_id) VALUES (:film_id, :user_id)";
@@ -36,6 +36,8 @@ public class JdbcFilmRepository implements FilmRepository {
             )
             LIMIT
             """;
+    private static final String INSERT_GENRES = "INSERT INTO film_genre (film_id, genre_id) VALUES (:film_id, :genre_id)";
+    private static final String CLEAN_GENRES = "DELETE FROM film_genre WHERE film_id = :film_id";
 
     @Override
     public Collection<Film> getAll() {
@@ -53,8 +55,14 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("rating_mpa_id", film.getMpa().getId());
 
         jdbc.update(INSERT_QUERY, params, keyHolder, new String[]{"id"});
-
         film.setId(keyHolder.getKeyAs(Integer.class).longValue());
+
+        MapSqlParameterSource genresParam = new MapSqlParameterSource();
+        film.getGenres().forEach(genre -> {
+            genresParam.addValue("film_id", film.getId());
+            genresParam.addValue("genre_id", genre.getId());
+            jdbc.update(INSERT_GENRES, genresParam);
+        });
         return film;
     }
 
@@ -68,6 +76,16 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("duration", film.getDuration());
         params.addValue("rating_mpa_id", film.getMpa().getId());
         jdbc.update(UPDATE_QUERY, params);
+
+        MapSqlParameterSource genresParam = new MapSqlParameterSource();
+        genresParam.addValue("film_id", film.getId());
+        jdbc.update(CLEAN_GENRES, genresParam);
+
+        film.getGenres().forEach(genre -> {
+            genresParam.addValue("film_id", film.getId());
+            genresParam.addValue("genre_id", genre.getId());
+            jdbc.update(INSERT_GENRES, genresParam);
+        });
         return film;
     }
 

@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.repository.UserRepository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -28,12 +29,13 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setDescription(rs.getString("description"));
         film.setReleaseDate(rs.getDate("release_date").toLocalDate());
         film.setDuration(rs.getInt("duration"));
-        if (rs.getString("rating_mpa_id") == null) {
+/*        if (rs.getString("rating_mpa_id") == null) {
             film.setMpa(new Mpa());
         } else {
             film.setMpa(mpaRepository.get(rs.getInt("rating_mpa_id")).orElseThrow());
-        }
-        film.setGenres(List.copyOf(genreRepository.getGenresOfFilm(film.getId())));
+        } Этот костыль оказался нужен, пока в БД были поля с null (rating_mpa_id)... */
+        film.setMpa(mpaRepository.get(rs.getInt("rating_mpa_id")).orElseThrow());
+        film.setGenres(Set.copyOf(genreRepository.getGenresOfFilm(film.getId())));
         film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
         return film;
     }
