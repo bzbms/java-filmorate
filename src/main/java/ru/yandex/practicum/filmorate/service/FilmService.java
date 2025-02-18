@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.repository.MpaRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Service
