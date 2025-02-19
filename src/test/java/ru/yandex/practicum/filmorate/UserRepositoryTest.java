@@ -5,22 +5,33 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.JdbcUserRepository;
+import ru.yandex.practicum.filmorate.repository.mappers.UserRowMapper;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({JdbcUserRepository.class})
-public class UserServiceTest {
+public class UserRepositoryTest {
     private final JdbcUserRepository userRepository;
+
+    static User getTestUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("name1");
+        user.setLogin("login1");
+        user.setEmail("ya@ya.ru");
+        user.setBirthday(LocalDate.of(2000,1,2));
+        return user;
+    }
+
 
     @Test
     public void testFindUserById() {
@@ -29,9 +40,9 @@ public class UserServiceTest {
 
         assertThat(userOptional)
                 .isPresent()
-                .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 1)
-                );
+                .get()
+                .usingRecursiveComparison()
+                .isEqualTo(getTestUser());
     }
 /*
     - список всех
