@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 
 import java.util.Collection;
@@ -58,11 +59,11 @@ public class JdbcFilmRepository implements FilmRepository {
         film.setId(keyHolder.getKeyAs(Integer.class).longValue());
 
         MapSqlParameterSource genresParam = new MapSqlParameterSource();
-        film.getGenres().forEach(genre -> {
+        for (Genre genre : film.getGenres()) {
             genresParam.addValue("film_id", film.getId());
             genresParam.addValue("genre_id", genre.getId());
             jdbc.update(INSERT_GENRES, genresParam);
-        });
+        }
         return film;
     }
 
@@ -81,11 +82,11 @@ public class JdbcFilmRepository implements FilmRepository {
         genresParam.addValue("film_id", film.getId());
         jdbc.update(CLEAN_GENRES, genresParam);
 
-        film.getGenres().forEach(genre -> {
+        for (Genre genre : film.getGenres()) {
             genresParam.addValue("film_id", film.getId());
             genresParam.addValue("genre_id", genre.getId());
             jdbc.update(INSERT_GENRES, genresParam);
-        });
+        }
         return film;
     }
 

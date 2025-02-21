@@ -26,7 +26,6 @@ public class JdbcGenreRepository implements GenreRepository {
             JOIN film_genre ON genres.id = film_genre.genre_id
             WHERE film_genre.film_id IN (:film_id)
             """;
-//    private static final String GENRES_IDS_OF_FILM = "SELECT genre_id FROM film_genre WHERE film_id = :film_id";
 
     @Override
     public Collection<Genre> getAll() {
@@ -39,15 +38,6 @@ public class JdbcGenreRepository implements GenreRepository {
         params.addValue("id", id);
         return Optional.ofNullable(jdbc.queryForObject(FIND_BY_ID_QUERY, params, mapper));
     }
-/*
-
-    @Override
-    public List<Integer> getGenresIdsOfFilm(Long filmId) {
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("film_id", filmId);
-        return jdbc.queryForList(GENRES_IDS_OF_FILM, params, Integer.class);
-    }
-*/
 
     @Override
     public List<Genre> getGenresOfFilm(Long filmId) {

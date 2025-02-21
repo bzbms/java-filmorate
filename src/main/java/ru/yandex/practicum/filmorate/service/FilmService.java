@@ -79,11 +79,6 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
         userRepository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-/*        if (film.getLikes().contains(userId)) {
-            throw new IncorrectRequestException(String.format("Лайк уже был добавлен фильму c id=%d от пользователя c id=%d", filmId, userId));
-        } else {
-            film.getLikes().add(userId);
-        }*/
         filmRepository.addLike(filmId, userId);
     }
 
@@ -92,12 +87,6 @@ public class FilmService {
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
         userRepository.get(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("Пользователь c id=%d не найден", filmId)));
-/*        if (!film.getLikes().contains(userId)) {
-            throw new IncorrectRequestException(String
-                    .format("Удалить лайк у фильму %d от пользователя %d не удалось - он не поставлен", filmId, userId));
-        } else {
-            film.getLikes().remove(userId);
-        }*/
         filmRepository.removeLike(filmId, userId);
     }
 
