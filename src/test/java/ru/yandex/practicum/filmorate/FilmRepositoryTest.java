@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -17,16 +16,17 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
+@SpringBootTest
+//@JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({JdbcFilmRepository.class})
+//@Import({JdbcFilmRepository.class})
 public class FilmRepositoryTest {
     private final JdbcFilmRepository filmRepository;
 
     static Film getTestFilm() {
         Film film = new Film();
-        film.setId(1);
+        film.setId(1L);
         film.setName("123");
         film.setDescription("111111");
         film.setReleaseDate(LocalDate.of(2022, 12, 2));
@@ -43,8 +43,8 @@ public class FilmRepositoryTest {
         Genre genre2 = new Genre();
         genre2.setId(2);
         genre2.setName("Драма");
-        Set<Genre> genres = Set.of(genre1, genre2);
-        film.setGenres(genres);
+        film.getGenres().add(genre1);
+        film.getGenres().add(genre2);
 
         Set<Long> likes = Set.of(1L, 2L);
         film.setLikes(likes);
@@ -65,7 +65,7 @@ public class FilmRepositoryTest {
 
     @Test
     public void testGetAllFilms() {
-        assertThat(filmRepository.getAll()).hasSize(2);
+        assertThat(filmRepository.getAll()).hasSize(3);
     }
 
     @Test
@@ -84,8 +84,7 @@ public class FilmRepositoryTest {
         Genre genre = new Genre();
         genre.setId(3);
         genre.setName("Мультфильм");
-        Set<Genre> genres = Set.of(genre);
-        newFilm.setGenres(genres);
+        newFilm.getGenres().add(genre);
 
         filmRepository.add(newFilm);
         assertThat(filmRepository.getAll()).hasSize(3);
@@ -94,7 +93,7 @@ public class FilmRepositoryTest {
     @Test
     public void testUpdateFilm() {
         Film updatedFilm = new Film();
-        updatedFilm.setId(1);
+        updatedFilm.setId(2L);
         updatedFilm.setName("123123");
         updatedFilm.setDescription("1");
         updatedFilm.setReleaseDate(LocalDate.of(2021, 12, 2));
@@ -109,25 +108,25 @@ public class FilmRepositoryTest {
         genre.setId(1);
         genre.setName("Комедия");
         Set<Genre> genres = Set.of(genre);
-        updatedFilm.setGenres(genres);
+        updatedFilm.getGenres().add(genre);
 
         Film returnedFilm = filmRepository.update(updatedFilm);
         assertThat(returnedFilm)
-                .hasFieldOrPropertyWithValue("id", 1)
+                .hasFieldOrPropertyWithValue("id", 2L)
                 .hasFieldOrPropertyWithValue("name", "123123")
                 .hasFieldOrPropertyWithValue("description", "1")
                 .hasFieldOrPropertyWithValue("releaseDate", LocalDate.of(2021, 12, 2))
                 .hasFieldOrPropertyWithValue("duration", 50)
                 .hasFieldOrPropertyWithValue("mpa", mpa)
-                .hasFieldOrPropertyWithValue("genres", genre);
+                .hasFieldOrPropertyWithValue("genres", genres);
     }
 
     @Test
     public void addLike() {
         Film film = getTestFilm();
-        filmRepository.addLike(film.getId(), 3L);
+        filmRepository.addLike(film.getId(), 2L);
 
-        assertThat(filmRepository.get(1L).get().getLikes()).hasSize(3);
+        assertThat(filmRepository.get(1L).get().getLikes()).hasSize(2);
     }
 
     @Test

@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.JdbcUserRepository;
 
@@ -14,10 +13,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@JdbcTest
+@SpringBootTest
+//@JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({JdbcUserRepository.class})
+//@Import({JdbcUserRepository.class})
 public class UserRepositoryTest {
     private final JdbcUserRepository userRepository;
 
@@ -44,7 +44,7 @@ public class UserRepositoryTest {
 
     @Test
     public void testGetAllUsers() {
-        assertThat(userRepository.getAll()).hasSize(2);
+        assertThat(userRepository.getAll()).hasSize(3);
     }
 
     @Test
@@ -62,13 +62,13 @@ public class UserRepositoryTest {
     @Test
     public void testUpdateUser() {
         User updatedUser = new User();
-        updatedUser.setId(1L);
-        updatedUser.setName("newname1");
-        updatedUser.setLogin("newlogin1");
+        updatedUser.setId(2L);
+        updatedUser.setName("newname");
+        updatedUser.setLogin("newlogin");
         updatedUser.setEmail("newya@ya.ru");
         updatedUser.setBirthday(LocalDate.of(2001, 1, 2));
 
         userRepository.update(updatedUser);
-        assertThat(userRepository.get(1L)).hasValue(updatedUser);
+        assertThat(userRepository.get(2L)).hasValue(updatedUser);
     }
 }
