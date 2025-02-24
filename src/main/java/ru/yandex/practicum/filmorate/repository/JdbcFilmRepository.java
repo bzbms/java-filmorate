@@ -11,7 +11,10 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Qualifier("JdbcFilmRepository")
 @Repository
@@ -59,11 +62,12 @@ public class JdbcFilmRepository implements FilmRepository {
         film.setId(keyHolder.getKeyAs(Integer.class).longValue());
 
         MapSqlParameterSource genresParam = new MapSqlParameterSource();
-        for (Genre genre : film.getGenres()) {
+        Set<Genre> genresToSave = film.getGenres();
+        genresToSave.stream().takeWhile(genre -> genre.getId() < ?).forEach(genre -> {
             genresParam.addValue("film_id", film.getId());
             genresParam.addValue("genre_id", genre.getId());
             jdbc.update(INSERT_GENRES, genresParam);
-        }
+        });
         return film;
     }
 
@@ -82,11 +86,12 @@ public class JdbcFilmRepository implements FilmRepository {
         genresParam.addValue("film_id", film.getId());
         jdbc.update(CLEAN_GENRES, genresParam);
 
-        for (Genre genre : film.getGenres()) {
+        LinkedHashSet<Genre> genresToSave = film.getGenres();
+        genresToSave.stream().sorted().forEach(genre -> {
             genresParam.addValue("film_id", film.getId());
             genresParam.addValue("genre_id", genre.getId());
             jdbc.update(INSERT_GENRES, genresParam);
-        }
+        });
         return film;
     }
 
