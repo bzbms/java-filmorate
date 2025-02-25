@@ -11,10 +11,8 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.TreeSet;
 
 @Qualifier("JdbcFilmRepository")
 @Repository
@@ -61,13 +59,9 @@ public class JdbcFilmRepository implements FilmRepository {
         jdbc.update(INSERT_QUERY, params, keyHolder, new String[]{"id"});
         film.setId(keyHolder.getKeyAs(Integer.class).longValue());
 
-        MapSqlParameterSource genresParam = new MapSqlParameterSource();
-        Set<Genre> genresToSave = film.getGenres();
-        genresToSave.stream().takeWhile(genre -> genre.getId() < ?).forEach(genre -> {
-            genresParam.addValue("film_id", film.getId());
-            genresParam.addValue("genre_id", genre.getId());
-            jdbc.update(INSERT_GENRES, genresParam);
-        });
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            operateGenres(film.getId(), film.getGenres());
+        }
         return film;
     }
 
@@ -82,16 +76,13 @@ public class JdbcFilmRepository implements FilmRepository {
         params.addValue("rating_mpa_id", film.getMpa().getId());
         jdbc.update(UPDATE_QUERY, params);
 
-        MapSqlParameterSource genresParam = new MapSqlParameterSource();
-        genresParam.addValue("film_id", film.getId());
-        jdbc.update(CLEAN_GENRES, genresParam);
+        if (film.getGenres() != null) {
+            MapSqlParameterSource genresCleanParams = new MapSqlParameterSource();
+            genresCleanParams.addValue("film_id", film.getId());
+            jdbc.update(CLEAN_GENRES, genresCleanParams);
 
-        LinkedHashSet<Genre> genresToSave = film.getGenres();
-        genresToSave.stream().sorted().forEach(genre -> {
-            genresParam.addValue("film_id", film.getId());
-            genresParam.addValue("genre_id", genre.getId());
-            jdbc.update(INSERT_GENRES, genresParam);
-        });
+            operateGenres(film.getId(), film.getGenres());
+        }
         return film;
     }
 
@@ -121,6 +112,15 @@ public class JdbcFilmRepository implements FilmRepository {
     @Override
     public Collection<Film> showPopularFilms(Integer count) {
         return jdbc.query(SHOW_POPULAR_FILMS + " " + count, mapper);
+    }
+
+    private void operateGenres(Long filmId, TreeSet<Genre> genresToSave) {
+        MapSqlParameterSource genresParams = new MapSqlParameterSource();
+        genresToSave.stream().forEachOrdered(genre -> {
+            genresParams.addValue("film_id", filmId);
+            genresParams.addValue("genre_id", genre.getId());
+            jdbc.update(INSERT_GENRES, genresParams);
+        });
     }
 
 }

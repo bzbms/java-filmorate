@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Set;
+import java.util.TreeSet;
 
 @Component
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         film.setReleaseDate(rs.getDate("release_date").toLocalDate());
         film.setDuration(rs.getInt("duration"));
         film.setMpa(mpaRepository.get(rs.getInt("rating_mpa_id")).orElseThrow());
-        film.setGenres(Set.copyOf(genreRepository.getGenresOfFilm(film.getId())));
+        film.setGenres(new TreeSet<>(genreRepository.getGenresOfFilm(film.getId())));
         film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
         return film;
     }

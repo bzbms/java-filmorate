@@ -11,8 +11,10 @@ import ru.yandex.practicum.filmorate.validator.Group;
 import ru.yandex.practicum.filmorate.validator.ReleaseDate;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Data
 @AllArgsConstructor
@@ -39,5 +41,5 @@ public class Film {
 
     private Mpa mpa;
 
-    private Set<Genre> genres = new HashSet<>();
+    private TreeSet<Genre> genres = new TreeSet<>(Comparator.comparingInt(Genre::getId));
 }
