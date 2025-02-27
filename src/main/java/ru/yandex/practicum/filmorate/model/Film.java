@@ -39,7 +39,7 @@ public class Film {
 
     private Set<Long> likes = new HashSet<>();
 
-    private Mpa mpa;
+    private Mpa mpa = new Mpa();
 
     private TreeSet<Genre> genres = new TreeSet<>(Comparator.comparingInt(Genre::getId));
 }

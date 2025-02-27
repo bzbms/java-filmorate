@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -90,7 +91,18 @@ public class JdbcFilmRepository implements FilmRepository {
     public Optional<Film> get(Long id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
-        return Optional.ofNullable(jdbc.queryForObject(FIND_BY_ID_QUERY, params, mapper));
+
+        Film film = jdbc.queryForObject(FIND_BY_ID_QUERY, params, mapper);
+        film.getMpa().setName(JdbcMpaRepository.getMpaName(film.getMpa().getId()));
+
+
+
+        film.setGenres(new TreeSet<>(genreRepository.getGenresOfFilm(film.getId())));
+        film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
+
+
+
+        return Optional.of(film);
     }
 
     @Override
@@ -115,12 +127,23 @@ public class JdbcFilmRepository implements FilmRepository {
     }
 
     private void operateGenres(Long filmId, TreeSet<Genre> genresToSave) {
+        SqlParameterSource[] genresBatch = new MapSqlParameterSource[genresToSave.size()];
         MapSqlParameterSource genresParams = new MapSqlParameterSource();
+
+        genresParams.addValue("film_id", filmId);
+        for (int i = 0; i < genresBatch.length; i++) {
+            genresParams.addValue("genre_id", genresToSave.getFirst());
+            genresBatch[i] = genresParams;
+            genresToSave.removeFirst();
+        }
+
+        jdbc.batchUpdate(INSERT_GENRES, genresBatch);
+/*
         genresToSave.stream().forEachOrdered(genre -> {
             genresParams.addValue("film_id", filmId);
             genresParams.addValue("genre_id", genre.getId());
             jdbc.update(INSERT_GENRES, genresParams);
-        });
+        });*/
     }
 
 }
