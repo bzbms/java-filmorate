@@ -6,11 +6,16 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -22,7 +27,7 @@ public class JdbcFilmRepository implements FilmRepository {
     private final NamedParameterJdbcOperations jdbc;
     private final FilmRowMapper mapper;
     private static final String FIND_ALL_QUERY = "SELECT * FROM films";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = :id";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = :id JOIN rating_mpa ON films.rating_mpa_id = rating_mpa.if WHERE id = :id";
     private static final String INSERT_QUERY = "INSERT INTO films (name, description, release_date, duration, rating_mpa_id)" +
             "VALUES (:name, :description, :release_date, :duration, :rating_mpa_id)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = :name, description = :description, " +
@@ -92,17 +97,29 @@ public class JdbcFilmRepository implements FilmRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
-        Film film = jdbc.queryForObject(FIND_BY_ID_QUERY, params, mapper);
+        String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = :id "+
+                "JOIN rating_mpa.name ON films.rating_mpa_id = rating_mpa.id";
+
+        SqlRowSet results = jdbc.queryForRowSet(FIND_BY_ID_QUERY, params);
+        Film film = mapFilm(results);
         film.getMpa().setName(JdbcMpaRepository.getMpaName(film.getMpa().getId()));
-
-
 
         film.setGenres(new TreeSet<>(genreRepository.getGenresOfFilm(film.getId())));
         film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
 
-
-
         return Optional.of(film);
+    }
+
+    static Film mapFilm(SqlRowSet srs) {
+        Film film = new Film();
+        film.setId(srs.getLong("id"));
+        film.setName(srs.getString("name"));
+        film.setDescription(srs.getString("description"));
+        film.setReleaseDate(srs.getDate("release_date").toLocalDate());
+        film.setDuration(srs.getInt("duration"));
+        film.getMpa().setId(srs.getInt("rating_mpa_id"));
+        film.getMpa().setName(srs.getString("rating_mpa.name"));
+        return film;
     }
 
     @Override
@@ -128,10 +145,11 @@ public class JdbcFilmRepository implements FilmRepository {
 
     private void operateGenres(Long filmId, TreeSet<Genre> genresToSave) {
         SqlParameterSource[] genresBatch = new MapSqlParameterSource[genresToSave.size()];
-        MapSqlParameterSource genresParams = new MapSqlParameterSource();
+        MapSqlParameterSource genresParams;
 
-        genresParams.addValue("film_id", filmId);
         for (int i = 0; i < genresBatch.length; i++) {
+            genresParams = new MapSqlParameterSource();
+            genresParams.addValue("film_id", filmId);
             genresParams.addValue("genre_id", genresToSave.getFirst());
             genresBatch[i] = genresParams;
             genresToSave.removeFirst();
