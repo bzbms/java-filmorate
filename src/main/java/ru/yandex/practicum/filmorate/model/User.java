@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.Group;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -22,19 +20,17 @@ public class User {
 
     private String name;
 
-    @Email(message = "Почта указана некорректно", groups = {Group.Create.class, Group.Update.class})
-    private String email;
-
     @NotNull(message = "Не указан логин", groups = {Group.Create.class})
     @Pattern(regexp = "^[A-Za-z0-9]+$",
             message = "login может содержать только цифры и символы латиницы",
             groups = {Group.Create.class, Group.Update.class})
     private String login;
 
+    @Email(message = "Почта указана некорректно", groups = {Group.Create.class, Group.Update.class})
+    private String email;
+
     @NotNull(message = "Не указана дата рождения", groups = {Group.Create.class})
     @Past(message = "Дата рождения должна быть указана в прошлом",
             groups = {Group.Create.class, Group.Update.class})
     private LocalDate birthday;
-
-    private Set<Long> friends = new HashSet<>();
 }
