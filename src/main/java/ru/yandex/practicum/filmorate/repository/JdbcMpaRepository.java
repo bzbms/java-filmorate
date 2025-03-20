@@ -37,22 +37,15 @@ public class JdbcMpaRepository implements MpaRepository {
         params.addValue("id", id);
         return Optional.ofNullable(jdbc.queryForObject(FIND_BY_ID_QUERY, params, mapper));
     }
-/*
-    static String getMpaName(Integer id) {
+
+//    jdbc.queryForObject(FIND_NAME_BY_ID_QUERY, params, (rs, rowNum) -> rs.getString("name"));
+
+
+    static String mapMpaName(Integer id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
-        return jdbc.queryForObject(FIND_NAME_BY_ID_QUERY, params, (rs, rowNum) -> rs.getString("name"));
-    }*/
-
-    static String getMpaName(Integer id) {
-        Film film = new Film();
-        film.setId(srs.getLong("id"));
-        film.setName(srs.getString("name"));
-        film.setDescription(srs.getString("description"));
-        film.setReleaseDate(srs.getDate("release_date").toLocalDate());
-        film.setDuration(srs.getInt("duration"));
-        film.getMpa().setId(srs.getInt("rating_mpa_id"));
-        return film;
+        SqlRowSet sqlRowSet = jdbc.queryForRowSet(FIND_NAME_BY_ID_QUERY, params);
+        return sqlRowSet.getString("name");
     }
 
 }

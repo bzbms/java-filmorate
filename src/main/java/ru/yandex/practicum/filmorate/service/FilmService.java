@@ -12,7 +12,9 @@ import ru.yandex.practicum.filmorate.repository.MpaRepository;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +32,15 @@ public class FilmService {
         mpaRepository.get(film.getMpa().getId())
                 .orElseThrow(() -> new NotFoundException(String.format("Рейтинг фильма(%d) c id=%d не найден", film.getId(), film.getMpa().getId())));
         Set<Genre> genresOfFilm = film.getGenres();
-        genresOfFilm.forEach(genre -> genreRepository.get(genre.getId())
-                .orElseThrow(() -> new NotFoundException(String.format("Жанр фильма(%d) c id=%d не найден", film.getId(), genre.getId()))));
-
+        Set<Genre> genresAll = new HashSet<>(genreRepository.getAll());
+        if (!genresAll.containsAll(genresOfFilm)) {
+            throw new NotFoundException(String.format("Недопустимый жанр у фильма c id=%d", film.getId()));
+        }
         Film filmDB = filmRepository.add(film);
+/*
         filmDB.setMpa(mpaRepository.get(filmDB.getMpa().getId()).get());
         filmDB.getGenres().forEach(genre -> genre.setName(genreRepository.get(genre.getId()).get().getName()));
+*/
 
         return filmDB;
     }
@@ -63,9 +68,9 @@ public class FilmService {
         }
 
         Film filmDB = filmRepository.update(existedFilm);
-        filmDB.setMpa(mpaRepository.get(filmDB.getMpa().getId()).get());
+     /*   filmDB.setMpa(mpaRepository.get(filmDB.getMpa().getId()).get());
         filmDB.getGenres().forEach(genre -> genre.setName(genreRepository.get(genre.getId()).get().getName()));
-
+*/
         return filmDB;
     }
 

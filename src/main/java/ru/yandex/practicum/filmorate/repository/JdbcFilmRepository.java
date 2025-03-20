@@ -10,12 +10,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.repository.mappers.FilmRowMapper;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.TreeSet;
@@ -102,7 +98,7 @@ public class JdbcFilmRepository implements FilmRepository {
 
         SqlRowSet results = jdbc.queryForRowSet(FIND_BY_ID_QUERY, params);
         Film film = mapFilm(results);
-        film.getMpa().setName(JdbcMpaRepository.getMpaName(film.getMpa().getId()));
+     //   film.getMpa().setName(JdbcMpaRepository.getMpaName(film.getMpa().getId()));
 
         film.setGenres(new TreeSet<>(genreRepository.getGenresOfFilm(film.getId())));
         film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
@@ -156,12 +152,6 @@ public class JdbcFilmRepository implements FilmRepository {
         }
 
         jdbc.batchUpdate(INSERT_GENRES, genresBatch);
-/*
-        genresToSave.stream().forEachOrdered(genre -> {
-            genresParams.addValue("film_id", filmId);
-            genresParams.addValue("genre_id", genre.getId());
-            jdbc.update(INSERT_GENRES, genresParams);
-        });*/
     }
 
 }
