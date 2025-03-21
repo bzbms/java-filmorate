@@ -58,6 +58,12 @@ public class UserController {
         service.addFriend(userId, friendId);
     }
 
+    @PutMapping("/{userId}/friends/{friendId}/approve")
+    public void approveFriend(@PathVariable Long userId, @PathVariable Long friendId) {
+        log.debug("От пользователя с id={} совершён запрос на подтверждение дружбы с id={} ", userId, friendId);
+        service.approveFriend(userId, friendId);
+    }
+
     @DeleteMapping("/{userId}/friends/{friendId}")
     public void deleteFriend(@PathVariable Long userId, @PathVariable Long friendId) {
         log.debug("От пользователя с id={} совершён запрос на удаление друга id={} ", userId, friendId);
