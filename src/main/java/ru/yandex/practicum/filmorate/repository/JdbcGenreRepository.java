@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.repository.mappers.GenreRowMapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeSet;
 
 @Qualifier("JdbcGenreRepository")
 @Repository
@@ -25,7 +24,8 @@ public class JdbcGenreRepository implements GenreRepository {
             SELECT genres.id, genres.name
             FROM genres
             JOIN film_genre ON genres.id = film_genre.genre_id
-            WHERE film_genre.film_id IN (:film_id)
+            WHERE film_genre.film_id = :film_id
+            ORDER BY genres.id
             """;
 
     @Override
@@ -46,4 +46,5 @@ public class JdbcGenreRepository implements GenreRepository {
         params.addValue("film_id", filmId);
         return jdbc.query(GENRES_OF_FILM, params, mapper);
     }
+
 }

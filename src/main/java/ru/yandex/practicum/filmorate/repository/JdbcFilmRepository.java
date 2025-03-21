@@ -93,28 +93,29 @@ public class JdbcFilmRepository implements FilmRepository {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
 
-        String FIND_BY_ID_QUERY = "SELECT * FROM films WHERE id = :id "+
-                "JOIN rating_mpa.name ON films.rating_mpa_id = rating_mpa.id";
+        String FIND_BY_ID_QUERY = """
+                SELECT films.id, description, release_date, duration, rating_mpa_id, rating_mpa.name
+                FROM films
+                INNER JOIN rating_mpa ON films.rating_mpa_id = rating_mpa.id
+                WHERE films.id = :id
+                """;
 
         SqlRowSet results = jdbc.queryForRowSet(FIND_BY_ID_QUERY, params);
         Film film = mapFilm(results);
      //   film.getMpa().setName(JdbcMpaRepository.getMpaName(film.getMpa().getId()));
-
-        film.setGenres(new TreeSet<>(genreRepository.getGenresOfFilm(film.getId())));
-        film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
 
         return Optional.of(film);
     }
 
     static Film mapFilm(SqlRowSet srs) {
         Film film = new Film();
-        film.setId(srs.getLong("id"));
+        film.setId(srs.getInt("id"));
         film.setName(srs.getString("name"));
         film.setDescription(srs.getString("description"));
         film.setReleaseDate(srs.getDate("release_date").toLocalDate());
         film.setDuration(srs.getInt("duration"));
         film.getMpa().setId(srs.getInt("rating_mpa_id"));
-        film.getMpa().setName(srs.getString("rating_mpa.name"));
+        film.getMpa().setName(srs.getString("name"));
         return film;
     }
 

@@ -40,12 +40,12 @@ public class JdbcMpaRepository implements MpaRepository {
 
 //    jdbc.queryForObject(FIND_NAME_BY_ID_QUERY, params, (rs, rowNum) -> rs.getString("name"));
 
-
+/*
     static String mapMpaName(Integer id) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("id", id);
         SqlRowSet sqlRowSet = jdbc.queryForRowSet(FIND_NAME_BY_ID_QUERY, params);
         return sqlRowSet.getString("name");
-    }
+    }*/
 
 }

@@ -14,7 +14,7 @@ import ru.yandex.practicum.filmorate.repository.UserRepository;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 @Service
 @RequiredArgsConstructor
@@ -75,8 +75,11 @@ public class FilmService {
     }
 
     public Film get(Long filmId) {
-        return filmRepository.get(filmId)
+        Film film = filmRepository.get(filmId)
                 .orElseThrow(() -> new NotFoundException(String.format("Фильм c id=%d не найден", filmId)));
+        film.setGenres(new TreeSet<>(genreRepository.getGenresOfFilm(film.getId())));
+        film.getLikes().addAll(userRepository.getUserLikes(film.getId()));
+        return film;
     }
 
     public void addLike(Long filmId, Long userId) {
